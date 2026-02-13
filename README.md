@@ -34,8 +34,8 @@ This phase ensures you have the necessary CloudFlare account and local software.
 Wrangler is Cloudflare's official command line tool. Step A1C installed a local copy for this project. You need to connect it to your account.
 
 * **Step B2A**: Authenticate Wrangler
-  * Open your local terminal, ensure you are still inside the `HealthcheckWatch` directory, and run:
-    * ```bash CLOUDFLARE_API_TOKEN="" CLOUDFLARE_API_KEY="" npx wrangler login```
+  * Open your local terminal, ensure you are still inside the `HealthcheckWatch` directory, and run (bash):
+    * `CLOUDFLARE_API_TOKEN="" CLOUDFLARE_API_KEY="" npx wrangler login`
   * This will automatically open your web browser. Click *Allow* to grant Wrangler permission to manage your account. You can close the browser window once the terminal says "Successfully logged in."
 
 ### Phase 3: Database Provisioning & Binding
@@ -46,7 +46,7 @@ We need to create the D1 SQL database in the cloud and tell your local project h
   * Verify you are still inside the `HealthcheckWatch` directory in your terminal. Run this command to provision the database on Cloudflare's servers:
     * `npx wrangler d1 create healthcheckwatch-db`
 * **Step B3B**: Copy the Binding Configuration
-  * After B3A finishes, the terminal will output a block of text containing your `database_id`. Copy pase that into the file `wrangler.jsonc' located in your project folder.
+  * After B3A finishes, the terminal will output a block of text containing your `database_id`. Copy pase that into the file `wrangler.jsonc` located in your project folder.
 
 ### Phase 4: Database Schema Creation
 
@@ -58,7 +58,7 @@ We will now create the actual tables inside your database using a local SQL file
   * Push this structure to your live Cloudflare database by running:
     * `npx wrangler d1 execute healthcheckwatch-db --remote --file=./schema.sql`
 
-### Phase 5: Securing the API
+### Phase 5: Securing API and Deployment
 
 We need to lock down the API so random internet bots cannot write to your database.
 
@@ -72,6 +72,10 @@ We need to lock down the API so random internet bots cannot write to your databa
   * Finally, push the application to Cloudflare's global network:
     * `npx wrangler deploy`
   * The terminal will output the live URL of your new HealthcheckWatch API!
-
+* **Step B5D**: Test
+  * Run a test
+    * `curl -X POST "https://healthcheckwatch.yourhostname.workers.dev/ping/test-monitor" -H "Authorization: Bearer YOUR_TOKEN_HERE"` *(`yourhostname` was printed during B5C.)*
+  * **If it returns `[DONE] Heartbeat logged for monitor: test-monitor`, you have successfully built a global serverless monitoring system.*
+    
 ## License
 HealthcheckWatch is open-source software licensed under the [GNU AGPLv3](LICENSE).
