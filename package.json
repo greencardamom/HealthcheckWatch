@@ -1,0 +1,16 @@
+{
+  "name": "healthcheckwatch",
+  "version": "1.0.0",
+  "description": "A serverless Dead Man's Switch for monitoring cron jobs using Cloudflare Workers and D1.",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "author": "greencardamom",
+  "license": "AGPL-3.0-or-later",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.0.0",
+    "wrangler": "^3.0.0"
+  }
+}

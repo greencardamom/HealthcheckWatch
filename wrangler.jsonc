@@ -1,0 +1,16 @@
+{
+  "name": "healthcheckwatch",
+  "main": "src/index.js",
+  "compatibility_date": "2024-02-13",
+  // The scheduled cron trigger runs the watchdog every hour
+  "triggers": {
+    "crons": ["0 * * * *"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "healthcheckwatch-db",
+      "database_id": "xxxx-xxxx-xxxx-xxxx"
+    }
+  ]
+}
