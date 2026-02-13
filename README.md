@@ -74,8 +74,8 @@ We need to lock down the API so random internet bots cannot write to your databa
   * The terminal will output the live URL of your new HealthcheckWatch API!
 * **Step B5D**: Test
   * Run a test
-    * `curl -X POST "https://healthcheckwatch.yourhostname.workers.dev/ping/test-monitor" -H "Authorization: Bearer YOUR_TOKEN_HERE"`
-    * *(`yourhostname` was printed during B5C)*
+    * `curl -X POST "https://healthcheckwatch.yourhostname.workers.dev/ping/test-monitor" -H "Authorization: Bearer API_TOKEN"`
+    * *`yourhostname` was printed during B5C. `API_TOKEN` was created in B5B.*
   * **If it returns `[DONE] Heartbeat logged for monitor: test-monitor`, you have successfully built a global serverless monitoring system.**
     
 ## License
