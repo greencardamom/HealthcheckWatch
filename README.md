@@ -23,7 +23,7 @@ This phase ensures you have the necessary CloudFlare account and local software.
 
 * **Step B1A**: The Cloudflare Account (Branching Path)
   * If you already have an account: You are golden. Log into dash.cloudflare.com. You do not need to create a new account.
-  * If you do NOT have an account: Go to dash.cloudflare.com/sign-up. Enter your email, create a password, and verify your email address via the link sent to your inbox.
+  * If you do NOT have an account: Go to dash.cloudflare.com/sign-up. Enter your email, create a password, and verify your email address via the link sent to your inbox. The developer tier is free, has 10GB disk space and unlimited network - more than an enough for this application.
 * **Step B1B**: The workers.dev Subdomain (Branching Path)
   * If you already have an account: You will simply reuse this! Your new project will live at `healthcheckwatch.your-subdomain.workers.dev`. *(If you forgot your subdomain, log into the Cloudflare dashboard, click Workers & Pages on the left, and look at the right side of the screen where it says "Your subdomain is...").*
   * If you are a new user: Click **Workers & Pages** on the left sidebar. Cloudflare will force you to choose a free, permanent subdomain. Choose carefully, click **Set up**, and move on.
@@ -74,8 +74,9 @@ We need to lock down the API so random internet bots cannot write to your databa
   * The terminal will output the live URL of your new HealthcheckWatch API!
 * **Step B5D**: Test
   * Run a test
-    * `curl -X POST "https://healthcheckwatch.yourhostname.workers.dev/ping/test-monitor" -H "Authorization: Bearer YOUR_TOKEN_HERE"` *(`yourhostname` was printed during B5C.)*
-  * **If it returns `[DONE] Heartbeat logged for monitor: test-monitor`, you have successfully built a global serverless monitoring system.*
+    * `curl -X POST "https://healthcheckwatch.yourhostname.workers.dev/ping/test-monitor" -H "Authorization: Bearer YOUR_TOKEN_HERE"`
+    * *(`yourhostname` was printed during B5C)*
+  * **If it returns `[DONE] Heartbeat logged for monitor: test-monitor`, you have successfully built a global serverless monitoring system.**
     
 ## License
 HealthcheckWatch is open-source software licensed under the [GNU AGPLv3](LICENSE).
