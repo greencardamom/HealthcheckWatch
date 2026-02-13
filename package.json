@@ -11,6 +11,6 @@
   "license": "AGPL-3.0-or-later",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.0.0",
-    "wrangler": "^3.0.0"
+    "wrangler": "^4.65.0"
   }
 }

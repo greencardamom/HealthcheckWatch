@@ -31,14 +31,11 @@ This phase ensures you have the necessary CloudFlare account and local software.
 
 ### Phase 2: CLI Tooling & Authentication
 
-We will now install wrangler, Cloudflare's official command-line tool, and connect it to your new account.
+Wrangler is Cloudflare's official command line tool. Step A1C installed a local copy for this project. You need to connect it to your account.
 
-* **Step B2A**: Install Wrangler Globally
-  * Open your local terminal and run:
-    * `npm install -g wrangler`
-* **Step B2B**: Authenticate Wrangler
-  * Link your local terminal to your Cloudflare account by running:
-    * `wrangler login`
+* **Step B2A**: Authenticate Wrangler
+  * Open your local terminal, ensure you are still inside the `HealthcheckWatch` directory, and run:
+    * ```bash CLOUDFLARE_API_TOKEN="" CLOUDFLARE_API_KEY="" npx wrangler login```
   * This will automatically open your web browser. Click *Allow* to grant Wrangler permission to manage your account. You can close the browser window once the terminal says "Successfully logged in."
 
 ### Phase 3: Database Provisioning & Binding
