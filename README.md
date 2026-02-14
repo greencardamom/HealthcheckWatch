@@ -136,20 +136,28 @@ ping_watchdog()
 This phase ensures you have the necessary CloudFlare account and local software.
 
 * **Step B1A**: The Cloudflare Account (Branching Path)
-  * If you already have an account: You are golden. Proceed to Phase 2.
-  * If you do NOT have an account: Go to `dash.cloudflare.com/sign-up`. Enter your email, create a password, and verify your email address via the link sent to your inbox. The developer tier is free, has 10GB disk space and unlimited network - more than an enough for this application.
-* **Step B1B**: The workers.dev Subdomain (Branching Path)
-  * If you already have an account: You will simply reuse this! Your new project will live at `healthcheckwatch.your-subdomain.workers.dev`. *(If you forgot your subdomain, log into the Cloudflare dashboard, click Workers & Pages on the left, and look at the right side of the screen where it says "Your subdomain is...").*
-  * If you are a new user: Click **Workers & Pages** on the left sidebar. Cloudflare will force you to choose a free, permanent subdomain. Choose carefully, click **Set up**, and move on.
-* **Note**: You do not actually need to memorize your subdomain for this setup. When you deploy the code in Phase 5, the terminal will print your exact, final URL for you.
+  * If you already have an account: You are golden. Ignore the rest of this section and proceed to Phase 2.
+* **Step B1B**: The Cloudflare Account
+  * **Sign Up**: Go to dash.cloudflare.com/sign-up.
+  * **Verify**: Check your email immediately for a verification link. You must click this or your deployments will fail later.
+  * **No Credit Card Needed**: Cloudflare will offer "Paid" tiers ($5/mo). Ignore them. The "Free" tier is all you need for HealthcheckWatch.
+  * **No Domain Needed**: If the dashboard asks you to "Add a Site" or "Register a Domain," you can skip it. We are using a free workers.dev address provided by Cloudflare.
+
+* **Step B2A**: The `workers.dev` Subdomain
+  * This is your "mailing address" on the internet. All your scripts will send their pings to this unique name.
+    * **Navigate**: On the left-hand sidebar of your dashboard, click `Workers & Pages`.
+    * **Initialize**: If this is a brand new account, you will see a "Create application" button or a prompt to "Set up a subdomain."
+    * **Choose Your Name**: Enter a name (e.g., yourname-monitoring).
+      * *Note: This name will appear in your ping URLs like: `https://hcw.yourname-monitoring.workers.dev`*
+    * **Confirm**: Click **Set up** and then **Continue**.
 
 ### Phase 2: CLI Tooling & Authentication
 
 Wrangler is Cloudflare's official command line tool. Step A1C installed a local copy for this project. You need to now connect it to your account.
 
 * **Step B2A**: Authenticate Wrangler
-  * Open your local terminal, ensure you are still inside the `HealthcheckWatch` directory, and run (bash):
-    * `CLOUDFLARE_API_TOKEN="" CLOUDFLARE_API_KEY="" npx wrangler login`
+  * Open your local terminal, ensure you are still inside the `HealthcheckWatch` directory, and run:
+    * bash: `CLOUDFLARE_API_TOKEN="" CLOUDFLARE_API_KEY="" npx wrangler login`
   * This will automatically open your web browser. Click *Allow* to grant Wrangler permission to manage your account. You can close the browser window once the terminal says "Successfully logged in."
 
 ### Phase 3: Database Provisioning & Binding
