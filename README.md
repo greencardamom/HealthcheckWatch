@@ -9,7 +9,7 @@ notification when the user script finishes normally. If a user script fails to p
 email.
 
 It operates very similar to `healthchecks.io`, but is free and fully under your control. It only requires a CloudFlare 
-developer account which is free. The setup instructions assume you have never used CloudFlare and are easy to follow.
+developer account which is free. The setup instructions assume you have never used CloudFlare and is easy to follow.
 
 You can monitor anything like hardware, network access, web servers, applications, healthcheck scripts.. located in multiple 
 different locations. The client-side emailer program `emailcheck.py` can be located anywhere including entirely off-site of 
