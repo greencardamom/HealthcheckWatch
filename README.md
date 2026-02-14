@@ -1,9 +1,9 @@
 
 # HealthcheckWatch
 
-Who is watching your healthcheck scripts are actually working? Healthchecks by design return nothing when working. They also return nothing when **not** working. This presents a problem if scripts break due to code rot, mistakes, breaking upgrades etc.. you won't be alerted.
+Who is watching your healthcheck scripts? Healthchecks by design return nothing when working. They also return nothing when **not** working. This presents a problem if scripts break due to code rot, mistakes, breaking upgrades etc.. you won't be alerted.
 
-This is a "Dead Man's Switch" for monitoring cron jobs, backups, and scheduled scripts. 
+HealthcheckWatch is a "Dead Man's Switch" for monitoring cron jobs, backups, and scheduled scripts. 
 
 HealthcheckWatch uses CloudFlare to track your script executions. If a script fails to "check in" (ping home) on time, a 
 watchdog flags it and sends you an email.
