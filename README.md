@@ -11,7 +11,7 @@ watchdog flags it and sends you an email.
 
 It operates very similar to `healthchecks.io`, but it is free and fully under your control without much fuss. It requires a 
 CloudFlare developer account which is free, secure, and stable. These instructions assume you have never used CloudFlare and 
-are easy to follow.
+are meant to be easy to follow and not take too long.
 
 ## User Guide
 
@@ -198,6 +198,7 @@ To make the system fully automated, you need to tell your local server to run `e
     ```cron
     */15 * * * * /path/to/your/HealthcheckWatch/emailcheck.py
     ```
+  * *Note: During an outage you will receive **one** alert it won't keep sending emails.*
 
 ### Phase 3: manage.py
 
