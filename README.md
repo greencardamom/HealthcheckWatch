@@ -1,7 +1,8 @@
 
 # HealthcheckWatch
 
-Who is watching your healthcheck scripts? Healthchecks by design return nothing when working. They also return nothing when **not** working. This presents a problem if scripts break due to code rot, mistakes, breaking upgrades etc.. you won't be alerted.
+Who is watching your healthcheck scripts? Regular health checks by design return nothing when working. They also return 
+nothing when **not** working. This presents a problem when scripts break due to code rot, mistakes, breaking upgrades etc..
 
 HealthcheckWatch is a "Dead Man's Switch" for monitoring cron jobs, backups, and scheduled scripts. 
 
@@ -9,7 +10,8 @@ HealthcheckWatch uses CloudFlare to track your script executions. If a script fa
 watchdog flags it and sends you an email.
 
 It operates very similar to `healthchecks.io`, but it is free and fully under your control without much fuss. It requires a 
-CloudFlare developer account which are free, secure, and stable. 
+CloudFlare developer account which is free, secure, and stable. These instructions assume you have never used CloudFlare and 
+are easy to follow.
 
 ## User Guide
 
