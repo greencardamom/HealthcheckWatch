@@ -1,4 +1,70 @@
 
+## User Guide
+
+### 1. Simple Heartbeat
+
+The easiest way to use HealthcheckWatch is to add a single curl command to the end of your existing scripts.
+
+```bash
+# Alert if not seen within 2 hours
+curl "https://healthcheckwatch.your-subdomain.workers.dev/ping/my-script?t=2&token=API_TOKEN"
+
+# Alert if not seen within a month (744 hours)
+curl "https://healthcheckwatch.your-subdomain.workers.dev/ping/monthly-job?t=744&token=API_TOKEN"
+```
+
+* **How it works**: If Cloudflare doesn't see a ping within the time period, it triggers an alert.
+
+### 2. Customized Messages
+
+If you want a custom email subject and message, send a JSON payload.
+
+```bash
+# Ping with a 5-hour timeout and custom alert text
+curl -X POST "https://healthcheckwatch.your-subdomain.workers.dev/ping/network-check" \
+     -H "Authorization: Bearer API_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "timeout": 5,
+       "subject": "ALERT: Network Failed on Server-01",
+       "body": "The server failed to check in. Check logs at /var/log/sync.log."
+     }'
+```
+
+### 3. Integration in Python
+
+If you are monitoring a Python application, use the `requests` library to send heartbeats.
+
+```python
+import requests
+
+def ping_watchdog():
+    url = "https://healthcheckwatch.your-subdomain.workers.dev/ping/python-app"
+    headers = {
+        "Authorization": "Bearer YOUR_API_TOKEN",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "timeout": 24,
+        "subject": "Python App Offline",
+        "body": "The analytics engine has stopped responding."
+    }
+    try:
+        requests.post(url, json=data, headers=headers)
+    except Exception as e:
+        print(f"Failed to ping watchdog: {e}")
+
+# Call this at the end of your main execution loop
+ping_watchdog()
+```
+
+### Monitoring Strategies 
+
+* **Success Pings**: Place the ping at the very end of your script. This proves the script actually finished successfully.
+* **Failure Pings**: (Optional) You can also place a ping inside an error handler (trap in Bash or except in Python) with a timeout: 0 or a very short window to trigger an immediate alert if you know for a fact the script just crashed.
+* **Unique IDs**: Ensure every script has a unique ID in the URL (e.g., `/ping/machine-name-script-name`) so you know exactly which one died.
+
+
 ## Setup Basics (A)
 
 ### Phase 1: Download Program & Prerequisites 
@@ -13,7 +79,7 @@
 * **Step A1C**: Install Node dependencies 
   * `npm install` *(This reads the included `package.json` file and automatically installs the required Cloudflare Worker packages)*
 * **Step A1D**: Install Python dependencies
-  * `pip install ...` *(TBD)*
+  * `pip install requests`
 
 ## Setup and Deploy Cloudflare (B)
 
@@ -22,8 +88,8 @@
 This phase ensures you have the necessary CloudFlare account and local software.
 
 * **Step B1A**: The Cloudflare Account (Branching Path)
-  * If you already have an account: You are golden. Log into dash.cloudflare.com. You do not need to create a new account.
-  * If you do NOT have an account: Go to dash.cloudflare.com/sign-up. Enter your email, create a password, and verify your email address via the link sent to your inbox. The developer tier is free, has 10GB disk space and unlimited network - more than an enough for this application.
+  * If you already have an account: You are golden. Log into `dash.cloudflare.com`. You do not need to create a new account.
+  * If you do NOT have an account: Go to `dash.cloudflare.com/sign-up`. Enter your email, create a password, and verify your email address via the link sent to your inbox. The developer tier is free, has 10GB disk space and unlimited network - more than an enough for this application.
 * **Step B1B**: The workers.dev Subdomain (Branching Path)
   * If you already have an account: You will simply reuse this! Your new project will live at `healthcheckwatch.your-subdomain.workers.dev`. *(If you forgot your subdomain, log into the Cloudflare dashboard, click Workers & Pages on the left, and look at the right side of the screen where it says "Your subdomain is...").*
   * If you are a new user: Click **Workers & Pages** on the left sidebar. Cloudflare will force you to choose a free, permanent subdomain. Choose carefully, click **Set up**, and move on.
@@ -72,11 +138,21 @@ We need to lock down the API so random internet bots cannot write to your databa
   * Finally, push the application to Cloudflare's global network:
     * `npx wrangler deploy`
   * The terminal will output the live URL of your new HealthcheckWatch API!
-* **Step B5D**: Test
+
+### Phase 6: Test
+  
+* **Step B6A**: Simple test
   * Run a test
     * `curl -X POST "https://healthcheckwatch.yourhostname.workers.dev/ping/test-monitor" -H "Authorization: Bearer API_TOKEN"`
     * *`yourhostname` was printed during B5C. `API_TOKEN` was created in B5B.*
-  * **If it returns `[DONE] Heartbeat logged for monitor: test-monitor`, you have successfully built a global serverless monitoring system.**
-    
+  * **If it returns `[DONE] Heartbeat logged for monitor: test-monitor`, you have successfully built a serverless CloudFlare system.**
+* **Step B6B**: Fake an alert
+  * Inject a fake alert into the CloudFlare database
+    * `npx wrangler d1 execute healthcheckwatch-db --remote --command="INSERT INTO outbox (subject, body) VALUES ('Test Watchdog Alert', 'This is a live test of the HealthcheckWatch email delivery system.');"`
+  * Pull the alert and send an email:
+    * `./emailcheck.py`
+  * You should receive an email with the alert. If not double check your `config.ini` SMTP settings are working.
+
+
 ## License
 HealthcheckWatch is open-source software licensed under the [GNU AGPLv3](LICENSE).

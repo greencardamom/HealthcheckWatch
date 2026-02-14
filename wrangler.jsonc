@@ -2,6 +2,8 @@
   "name": "healthcheckwatch",
   "main": "src/index.js",
   "compatibility_date": "2024-02-13",
+  "workers_dev": true,
+  "preview_urls": false,
   // The scheduled cron trigger runs the watchdog every hour
   "triggers": {
     "crons": ["0 * * * *"]

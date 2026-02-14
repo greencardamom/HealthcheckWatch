@@ -12,19 +12,20 @@ export default {
 
     // SECURITY: Reject any request without the correct API_TOKEN
     const authHeader = request.headers.get('Authorization');
-    if (authHeader !== `Bearer ${env.API_TOKEN}`) {
+    const queryToken = url.searchParams.get('token');
+    if (authHeader !== `Bearer ${env.API_TOKEN}` && queryToken !== env.API_TOKEN) {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    // --- ROUTE: POST /ping/:id ---
+    // --- ROUTE: POST/GET /ping/:id ---
     // Registers a script or updates its last seen time
-    if (request.method === 'POST' && path.startsWith('/ping/')) {
+    if ((request.method === 'POST' || request.method === 'GET') && path.startsWith('/ping/')) {
       const id = path.split('/')[2];
       
-      // Default settings
-      let timeout = 13;
-      let subject = null;
-      let body = null;
+      // Default settings (Overridden by URL query parameters if present)
+      let timeout = url.searchParams.get('t') || 13;
+      let subject = url.searchParams.get('s') || null;
+      let body = url.searchParams.get('b') || null;
       
       // If the bash script sent a JSON Last Will and Testament, parse it
       if (request.headers.get('content-type')?.includes('application/json')) {

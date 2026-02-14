@@ -1,0 +1,15 @@
+# Secrets and Config
+config.ini
+logs/
+PAUSE_ALERTS
+
+# Node/Wrangler
+node_modules/
+.wrangler/
+package-lock.json
+
+# Python
+__pycache__/
+*.py[cod]
+EOF
+
