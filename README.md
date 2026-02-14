@@ -1,7 +1,7 @@
 
 # HealthcheckWatch
 
-Who is watching that your healthcheck scripts are actually working? Healthchecks by design return nothing when working. They also return nothing when **not** working. This presents a problem if scripts break due to code rot, mistakes, breaking upgrades etc.. you won't be alerted.
+Who is watching your healthcheck scripts are actually working? Healthchecks by design return nothing when working. They also return nothing when **not** working. This presents a problem if scripts break due to code rot, mistakes, breaking upgrades etc.. you won't be alerted.
 
 This is a "Dead Man's Switch" for monitoring cron jobs, backups, and scheduled scripts. 
 
@@ -196,6 +196,11 @@ To make the system fully automated, you need to tell your local server to run `e
     ```cron
     */15 * * * * /path/to/your/HealthcheckWatch/emailcheck.py
     ```
+
+### Phase 3: manage.py
+
+The `manage.py` is a CLI administrative utility. Invoke without options to see features.
+
 ## Design Philosophy
 
 The true power of HealthcheckWatch is that `emailcheck.py` does not have to run on the machine being monitored. You can have ten different servers across your house, AWS, and DigitalOcean running scripts and pinging Cloudflare.
