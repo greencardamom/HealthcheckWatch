@@ -5,8 +5,9 @@ HealthcheckWatch is a "Dead Man's Switch" designed to monitor cron jobs, hardwar
 scripts silently hang, crash, or fail to run, HealthcheckWatch ensures you get an email before the silence becomes a 
 problem.
 
-It operates similarly to `healthchecks.io` and similar services, but is 100% free, private, and runs on your own 
-infrastructure.
+It operates similarly to `healthchecks.io` and similar services, but it runs on **your own Cloudflare account** which 
+provides numerous advantages.
+
 
 ## Why HealthcheckWatch?
 
@@ -15,7 +16,7 @@ users who want **total control**, **zero recurring costs**, and a **Unix-native*
 
 ### 1. Zero Infrastructure Costs
 
-Most services charge $5–$20/month for advanced features like long timeouts or numerous monitors.
+Most services charge $5–$20/month for advanced features.
 
 * **The Competition**: Paid tiers for more than 10-20 checks.
 * **HealthcheckWatch**: Runs entirely on the **Cloudflare Free Tier**. You can have hundreds of monitors and thousands of pings per month without ever seeing a bill.
