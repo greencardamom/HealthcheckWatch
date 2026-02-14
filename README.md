@@ -1,4 +1,16 @@
 
+# HealthcheckWatch
+
+Who is watching that your healthcheck scripts are actually working? Healthchecks by design return nothing when working. They also return nothing when **not** working. This presents a problem if scripts break due to code rot, mistakes, breaking upgrades etc.. you won't be alerted.
+
+This is a "Dead Man's Switch" for monitoring cron jobs, backups, and scheduled scripts. 
+
+HealthcheckWatch uses CloudFlare to track your script executions. If a script fails to "check in" (ping home) on time, a 
+watchdog flags it and sends you an email.
+
+It operates very similar to `healthcheck.io`, but it is free and fully under your control. It requires a CloudFlare 
+developer account which are free, secure, and stable. It uses your own designated SMTP server for sending email.
+
 ## User Guide
 
 ### 1. Simple Heartbeat
@@ -7,28 +19,28 @@ The easiest way to use HealthcheckWatch is to add a single curl command to the e
 
 ```bash
 # Alert if not seen within 2 hours
-curl "https://healthcheckwatch.your-subdomain.workers.dev/ping/my-script?t=2&token=API_TOKEN"
+curl -s "https://healthcheckwatch.your-subdomain.workers.dev/ping/my-script?t=2&token=API_TOKEN" > /dev/null
 
 # Alert if not seen within a month (744 hours)
-curl "https://healthcheckwatch.your-subdomain.workers.dev/ping/monthly-job?t=744&token=API_TOKEN"
+curl -s "https://healthcheckwatch.your-subdomain.workers.dev/ping/monthly-job?t=744&token=API_TOKEN" > /dev/null
 ```
 
-* **How it works**: If Cloudflare doesn't see a ping within the time period, it triggers an alert.
+* **How it works**: If Cloudflare doesn't see a ping within the time period, it triggers an email alert.
 
 ### 2. Customized Messages
 
-If you want a custom email subject and message, send a JSON payload.
+If you want a custom email subject and message, include a JSON payload.
 
 ```bash
 # Ping with a 5-hour timeout and custom alert text
-curl -X POST "https://healthcheckwatch.your-subdomain.workers.dev/ping/network-check" \
+curl -s -X POST "https://healthcheckwatch.your-subdomain.workers.dev/ping/network-check" \
      -H "Authorization: Bearer API_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{
        "timeout": 5,
        "subject": "ALERT: Network Failed on Server-01",
        "body": "The server failed to check in. Check logs at /var/log/sync.log."
-     }'
+     }' > /dev/null
 ```
 
 ### 3. Integration in Python
@@ -41,7 +53,7 @@ import requests
 def ping_watchdog():
     url = "https://healthcheckwatch.your-subdomain.workers.dev/ping/python-app"
     headers = {
-        "Authorization": "Bearer YOUR_API_TOKEN",
+        "Authorization": "Bearer API_TOKEN",
         "Content-Type": "application/json"
     }
     data = {
@@ -63,7 +75,6 @@ ping_watchdog()
 * **Success Pings**: Place the ping at the very end of your script. This proves the script actually finished successfully.
 * **Failure Pings**: (Optional) You can also place a ping inside an error handler (trap in Bash or except in Python) with a timeout: 0 or a very short window to trigger an immediate alert if you know for a fact the script just crashed.
 * **Unique IDs**: Ensure every script has a unique ID in the URL (e.g., `/ping/machine-name-script-name`) so you know exactly which one died.
-
 
 ## Setup Basics (A)
 
@@ -112,7 +123,7 @@ We need to create the D1 SQL database in the cloud and tell your local project h
   * Verify you are still inside the `HealthcheckWatch` directory in your terminal. Run this command to provision the database on Cloudflare's servers:
     * `npx wrangler d1 create healthcheckwatch-db`
 * **Step B3B**: Copy the Binding Configuration
-  * After B3A finishes, the terminal will output a block of text containing your `database_id`. Copy pase that into the file `wrangler.jsonc` located in your project folder.
+  * After B3A finishes, the terminal will output a block of text containing your `database_id`. Copy paste that into the file `wrangler.jsonc` located in your project folder.
 
 ### Phase 4: Database Schema Creation
 
@@ -153,6 +164,38 @@ We need to lock down the API so random internet bots cannot write to your databa
     * `./emailcheck.py`
   * You should receive an email with the alert. If not double check your `config.ini` SMTP settings are working.
 
+## Final Setup (C)
+
+### Phase 1: config.ini
+
+The `config.ini` is the main configuration file for HealthcheckWatch. It contains "secrets": keep the file permission 600.
+
+* **Step C1A**: Clone the sample file
+  * `cp config.ini.example config.ini`
+* **Step C1B**: Open the file and fill in details
+  * **api_url**: The full URL provided when you run `npx wrangler deploy` (see **B5C**). Do not include a trailing slash.
+  * **api_token**: The exact secret string you generated and uploaded to Cloudflare via `npx wrangler secret put API_TOKEN` (see **B5B**).
+  * **squelch**: Set to `no` by default. If you change this to `yes`, the script will still fetch and clear alerts from Cloudflare, and write them to your local `logs/email_log`, but it will not send emails. This is useful for planned downtime.
+  * **SMTP host**: Your email provider's SMTP server (e.g., `smtp.gmail.com`, `mail.yourdomain.net`).
+  * **SMTP port**: Usually `465` for SSL or `587` for STARTTLS.
+  * **SMTP user**: Your full email address.
+  * **SMTP pass**: Your email account password.
+  * **SMTP use_ssl**: Set to `yes` if using port 465 (Implicit SSL). Set to no if using port `587` (STARTTLS).
+
+### Phase 2: Automation
+To make the system fully automated, you need to tell your local server to run `emailcheck.py` on a regular schedule to fetch pending alerts from Cloudflare.
+
+* **Step C2A**: Add the Python shebang
+  * Open `emailcheck.py` and ensure the very first line points to the Python binary inside your new virtual environment. 
+  * Example: `#!/home/youruser/HealthcheckWatch/healthcheckwatch_env/bin/python`
+* **Step C2B**: Open your crontab editor
+  * Run `crontab -e` in your terminal.
+* **Step C2C**: Add the polling interval
+  * Add a line to run the script every 15 minutes.
+  * Example every 15 minutes:
+    ```cron
+    */15 * * * * /path/to/your/HealthcheckWatch/emailcheck.py
+    ```
 
 ## License
 HealthcheckWatch is open-source software licensed under the [GNU AGPLv3](LICENSE).
