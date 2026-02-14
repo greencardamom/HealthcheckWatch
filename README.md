@@ -143,7 +143,7 @@ This phase ensures you have the necessary CloudFlare account and local software.
   * **No Credit Card Needed**: Cloudflare will offer "Paid" tiers ($5/mo). Ignore them. The "Free" tier is all you need for HealthcheckWatch.
   * **No Domain Needed**: If the dashboard asks you to "Add a Site" or "Register a Domain," you can skip it. We are using a free workers.dev address provided by Cloudflare.
 
-* **Step B2A**: The `workers.dev` Subdomain
+* **Step B1C**: The `workers.dev` Subdomain
   * All your scripts will send their pings to this unique name. Keep it short if you want shorter URLs but it needs be unique to CloudFlare globally.
     * **Navigate**: On the left-hand sidebar of your dashboard, click `Workers & Pages`.
     * **Initialize**: If this is a brand new account, you will see a "Create application" button or a prompt to "Set up a subdomain."
@@ -245,7 +245,12 @@ To make the system fully automated, you need to tell your local server to run `e
 
 ### Phase 3: manage.py
 
-The `manage.py` is a CLI administrative utility. Invoke without options to see features.
+Use the included `manage.py` to manage your monitors.
+
+* `./manage.py list`: See active monitors and their "Expected Death" times.
+* `./manage.py status`: Check if the Cloudflare outbox is healthy or backed up.
+* `./manage.py remove <id>`: Retire a monitor.
+* `./manage.py pause <id> <hours>`: Temporarily extend a timeout for maintenance.
 
 ## Design Philosophy
 
