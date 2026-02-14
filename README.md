@@ -11,7 +11,7 @@ watchdog flags it and sends you an email.
 
 It operates very similar to `healthchecks.io`, but it is free and fully under your control without much fuss. It requires a 
 CloudFlare developer account which is free, secure, and stable. These instructions assume you have never used CloudFlare and 
-are meant to be easy to follow and not take too long.
+are meant to be easy to follow.
 
 ## User Guide
 
