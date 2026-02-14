@@ -136,7 +136,7 @@ ping_watchdog()
 This phase ensures you have the necessary CloudFlare account and local software.
 
 * **Step B1A**: The Cloudflare Account (Branching Path)
-  * If you already have an account: You are golden. Log into `dash.cloudflare.com`. You do not need to create a new account.
+  * If you already have an account: You are golden. Proceed to Phase 2.
   * If you do NOT have an account: Go to `dash.cloudflare.com/sign-up`. Enter your email, create a password, and verify your email address via the link sent to your inbox. The developer tier is free, has 10GB disk space and unlimited network - more than an enough for this application.
 * **Step B1B**: The workers.dev Subdomain (Branching Path)
   * If you already have an account: You will simply reuse this! Your new project will live at `healthcheckwatch.your-subdomain.workers.dev`. *(If you forgot your subdomain, log into the Cloudflare dashboard, click Workers & Pages on the left, and look at the right side of the screen where it says "Your subdomain is...").*
