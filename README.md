@@ -30,15 +30,15 @@ Traditional services store your server names, IP addresses, and uptime history o
 ### 3. "One-Day" Deployment
 
 Because it uses a Serverless + SQLite (D1) architecture, there is no ping-receiving server to maintain, patch, or secure. 
-The "server" is a single 100-line JavaScript file hosted at 300+ global locations for maximum reliability.
+The "server" is a single 100-line JavaScript file hosted globally on CloudFlare's edge network for maximum reliability and performance.
 
 ### 4. Flexible & Resilient Alerting
 
-When a failure occurs, Cloudflare logs the event to your D1 database. The included `emailcheck.py` program pulls that data and sends the alert to you.
+When a failure occurs, Cloudflare logs the event to your D1 database (CloudFlare's SQL DB). The included `emailcheck.py` program pulls that data on a set period basis and sends the alert to you, just like a POP3 client.
 
 * **The Simple Setup**: For most users, running a single instance of `emailcheck.py` on your home server or desktop is "good enough." It takes seconds to set up and provides robust monitoring for your local scripts.
 * **The High-Availability Option**: If you are monitoring mission-critical services, you have the option to run `emailcheck.py` on multiple machines (e.g., a home PC and a remote VPS) in multiple locations remotely from what you are monitoring. 
-* **Smart Queueing**: Because the email polling is "destructive," multiple pollers naturally act as a failover team. If your home internet goes out, the remote VPS will "claim" the alert from the cloud and send the email. You get the reliability of an enterprise monitoring mesh without any of the configuration headaches.
+* **Smart Queueing**: Because the email polling is destructive ("remove from server on pickup"), multiple pollers naturally act as a failover team. If one copy of `emailcheck.py` fails, another once can still work to send the email. You get the reliability of an enterprise monitoring mesh without any of the configuration headaches.
 
 ### Separation of Concerns
 
