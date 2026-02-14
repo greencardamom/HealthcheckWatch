@@ -110,7 +110,7 @@ This phase ensures you have the necessary CloudFlare account and local software.
 
 ### Phase 2: CLI Tooling & Authentication
 
-Wrangler is Cloudflare's official command line tool. Step A1C installed a local copy for this project. You need to connect it to your account.
+Wrangler is Cloudflare's official command line tool. Step A1C installed a local copy for this project. You need to now connect it to your account.
 
 * **Step B2A**: Authenticate Wrangler
   * Open your local terminal, ensure you are still inside the `HealthcheckWatch` directory, and run (bash):
@@ -125,7 +125,7 @@ We need to create the D1 SQL database in the cloud and tell your local project h
   * Verify you are still inside the `HealthcheckWatch` directory in your terminal. Run this command to provision the database on Cloudflare's servers:
     * `npx wrangler d1 create healthcheckwatch-db`
 * **Step B3B**: Copy the Binding Configuration
-  * After B3A finishes, the terminal will output a block of text containing your `database_id`. Copy paste that into the file `wrangler.jsonc` located in your project folder.
+  * After B3A finishes, the terminal will output a block of text containing your `database_id`. Copy paste the `database_id` into the file `wrangler.jsonc` located in your project folder.
 
 ### Phase 4: Database Schema Creation
 
