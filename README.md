@@ -1,32 +1,24 @@
 
 # HealthcheckWatch
 
-HealthcheckWatch is a "Dead Man's Switch" for monitoring regularly running programs, such as from cron. It will notify if 
-your programs are silently hanging/exiting.
+HealthcheckWatch is a "Dead Man's Switch" designed to monitor cron jobs, hardware sensors, and background processes. If your 
+scripts silently hang, crash, or fail to run, HealthcheckWatch ensures you get an email before the silence becomes a 
+problem.
 
-HealthcheckWatch uses a central CloudFlare logging database to track script completion by way of a simple GET or POST 
-notification when the user script finishes normally. If a user script fails to ping CloudFlare on time, it sends an alert 
-email.
+It operates similarly to `healthchecks.io` and similar services, but is 100% free, private, and runs on your own 
+infrastructure.
 
-It operates very similar to `healthchecks.io`, but is free and fully under your control. It only requires a CloudFlare 
-developer account which is free. The setup instructions assume you have never used CloudFlare and is easy to follow.
+## Why HealthcheckWatch?
 
-You can monitor anything like hardware, network access, web servers, applications, healthcheck scripts.. located in multiple 
-different locations. The client-side emailer program `emailcheck.py` can be located anywhere including entirely off-site of 
-what you are monitoring. The "sever"-side is a secure and robust cloud provider, CloudFlare, that has no server or OS to 
-maintain only a single 100-line JavaScript file.
-
-## 
-
-While there are many "Dead Man's Switch" services available, HealthcheckWatch is built specifically for users who want total 
-control, zero recurring costs, and a "Unix-native" workflow.
+While there are many "Dead Man's Switch" services and applications available, HealthcheckWatch is built specifically for 
+users who want **total control**, **zero recurring costs**, and a **Unix-native** workflow.
 
 ### 1. Zero Infrastructure Costs
 
 Most services charge $5–$20/month for advanced features like long timeouts or numerous monitors.
 
 * **The Competition**: Paid tiers for more than 10-20 checks.
-* **HealthcheckWatch**: Runs entirely on the Cloudflare Free Tier. You can have hundreds of monitors and thousands of pings per month without ever seeing a bill.
+* **HealthcheckWatch**: Runs entirely on the **Cloudflare Free Tier**. You can have hundreds of monitors and thousands of pings per month without ever seeing a bill.
 
 ### 2. Privacy & Data Ownership
 
@@ -36,13 +28,22 @@ Traditional services store your server names, IP addresses, and uptime history o
 
 ### 3. "One-Day" Deployment
 
-Because it uses a Serverless + SQLite (D1) architecture, there is no central "server" to maintain, patch, or secure. Once the Worker is deployed - a mere 100-line JS file - it is "set and forget." CloudFlare is reliable and hosts that JS file at 300+ locations around the planet for rapid speed and reliability.
+Because it uses a Serverless + SQLite (D1) architecture, there is no ping-receiving server to maintain, patch, or secure. 
+The "server" is a single 100-line JavaScript file hosted at 300+ global locations for maximum reliability.
 
-### 4. Resilient Email
+### 4. Flexible & Resilient Alerting
 
-When CloudFlare detects an event it saves it to a CloudFlare database. An email program in this package, `emailcheck.py`, polls that database, pulls down the data, and relays it out to a SMTP server of your choice.
+When a failure occurs, Cloudflare logs the event to your D1 database. The included `emailcheck.py` program pulls that data and sends the alert to you.
 
-By separating the Database (Cloud) from the Emailer (Local), you aren't reliant on Cloudflare's ability to send emails. Your local `emailcheck.py` script ensures that even if a cloud provider's mail service has issues (or costs), your local system is responsible for the final alert. You have full control where to host `emailcheck.py` offsite or onsite, and can relay outbound mail through any SMTP provider. You can easily modify `emailcheck.py` to try multiple SMTP relays if one is down. 
+* **The Simple Setup**: For most users, running a single instance of `emailcheck.py` on your home server or desktop is "good enough." It takes seconds to set up and provides robust monitoring for your local scripts.
+* **The High-Availability Option**: If you are monitoring mission-critical off-site servers, you have the option to run `emailcheck.py` on multiple machines (e.g., a home PC and a remote VPS). 
+* **Smart Queueing**: Because the polling is "destructive," multiple pollers naturally act as a failover team. If your home internet goes out, the remote VPS will "claim" the alert from the cloud and send the email. You get the reliability of an enterprise monitoring mesh without any of the configuration headaches.
+
+### Separation of Concerns
+
+By separating the **Database (Cloud)** from the **Emailer (Local)**, you aren't reliant on Cloudflare's internal mailing 
+limitations. Your system is responsible for the final alert, allowing you to use any SMTP provider or even modify the script 
+to failover between multiple relays.
 
 ## User Guide
 
