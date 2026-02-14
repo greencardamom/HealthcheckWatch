@@ -37,8 +37,8 @@ The "server" is a single 100-line JavaScript file hosted at 300+ global location
 When a failure occurs, Cloudflare logs the event to your D1 database. The included `emailcheck.py` program pulls that data and sends the alert to you.
 
 * **The Simple Setup**: For most users, running a single instance of `emailcheck.py` on your home server or desktop is "good enough." It takes seconds to set up and provides robust monitoring for your local scripts.
-* **The High-Availability Option**: If you are monitoring mission-critical off-site servers, you have the option to run `emailcheck.py` on multiple machines (e.g., a home PC and a remote VPS). 
-* **Smart Queueing**: Because the polling is "destructive," multiple pollers naturally act as a failover team. If your home internet goes out, the remote VPS will "claim" the alert from the cloud and send the email. You get the reliability of an enterprise monitoring mesh without any of the configuration headaches.
+* **The High-Availability Option**: If you are monitoring mission-critical services, you have the option to run `emailcheck.py` on multiple machines (e.g., a home PC and a remote VPS) in multiple locations remotely from what you are monitoring. 
+* **Smart Queueing**: Because the email polling is "destructive," multiple pollers naturally act as a failover team. If your home internet goes out, the remote VPS will "claim" the alert from the cloud and send the email. You get the reliability of an enterprise monitoring mesh without any of the configuration headaches.
 
 ### Separation of Concerns
 
