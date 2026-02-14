@@ -27,10 +27,12 @@ Traditional services store your server names, IP addresses, and uptime history o
 * **The Competition**: Your infrastructure metadata is stored on their servers.
 * **HealthcheckWatch**: You own the database. It lives in your Cloudflare account, and the alerts are processed on your local machine. No third party ever sees your script names or server architecture.
 
-### 3. "One-Day" Deployment
+### 3. Deployment
 
 Because it uses a Serverless + SQLite (D1) architecture, there is no ping-receiving server to maintain, patch, or secure. 
 The "server" is a single 100-line JavaScript file hosted globally on CloudFlare's edge network for maximum reliability and performance.
+
+This system is designed to be run from the CLI so you never need to log into the CloudFlare website other than setup. The code can be changed and updated from the CLI.
 
 ### 4. Flexible & Resilient Alerting
 
