@@ -42,7 +42,7 @@ When a failure occurs, Cloudflare logs the event to your D1 database (CloudFlare
 * **The High-Availability Option**: If you are monitoring mission-critical services, you have the option to run `emailcheck.py` on multiple machines in multiple locations remotely from what you are monitoring. 
 * **Smart Queueing**: Because the email polling is destructive ("remove from server on pickup"), multiple pollers naturally act as a failover team. If one copy of `emailcheck.py` fails, another once can still work to send the email. You get the reliability of an enterprise monitoring mesh without any of the configuration headaches.
 
-### Separation of Concerns
+### 5. Separation of Concerns
 
 By separating the **Database (Cloud)** from the **Emailer (Local)**, you aren't reliant on Cloudflare's internal mailing 
 limitations. Your system is responsible for the final alert, allowing you to use any SMTP provider or even modify the script 
