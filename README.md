@@ -8,8 +8,8 @@ This is a "Dead Man's Switch" for monitoring cron jobs, backups, and scheduled s
 HealthcheckWatch uses CloudFlare to track your script executions. If a script fails to "check in" (ping home) on time, a 
 watchdog flags it and sends you an email.
 
-It operates very similar to `healthcheck.io`, but it is free and fully under your control. It requires a CloudFlare 
-developer account which are free, secure, and stable. It uses your own designated SMTP server for sending email.
+It operates very similar to `healthchecks.io`, but it is free and fully under your control without much fuss. It requires a 
+CloudFlare developer account which are free, secure, and stable. 
 
 ## User Guide
 
@@ -196,6 +196,15 @@ To make the system fully automated, you need to tell your local server to run `e
     ```cron
     */15 * * * * /path/to/your/HealthcheckWatch/emailcheck.py
     ```
+## Design Philosophy
+
+The true power of HealthcheckWatch is that `emailcheck.py` does not have to run on the machine being monitored. You can have ten different servers across your house, AWS, and DigitalOcean running scripts and pinging Cloudflare.
+
+* You run `emailcheck.py` on just one reliable machine (like a dedicated Raspberry Pi, or a $4/month cloud VPS).
+* If your home lab's router catches fire, Cloudflare flags all those home servers as "dead." Your external VPS then pulls that alert from Cloudflare and emails you.
+* If you relied on local-only pings, every single machine you own needs its own database, its own SMTP credentials, and its own cron jobs to manage its own alerts. Cloudflare centralizes the logic. Your client machines are "dumb"—they just send a basic URL curl.
+* Thus how much protection you have will be determined by where `emailcheck.py` is hosted relative to your monitored systems, and how your email is delivered relative to your monitored systems. 
 
 ## License
+
 HealthcheckWatch is open-source software licensed under the [GNU AGPLv3](LICENSE).
