@@ -138,17 +138,17 @@ This phase ensures you have the necessary CloudFlare account and local software.
 * **Step B1A**: The Cloudflare Account (Branching Path)
   * If you already have an account: You are golden. Ignore the rest of this section and proceed to Phase 2.
 * **Step B1B**: The Cloudflare Account
-  * **Sign Up**: Go to dash.cloudflare.com/sign-up.
+  * **Sign Up**: Go to `dash.cloudflare.com/sign-up`
   * **Verify**: Check your email immediately for a verification link. You must click this or your deployments will fail later.
   * **No Credit Card Needed**: Cloudflare will offer "Paid" tiers ($5/mo). Ignore them. The "Free" tier is all you need for HealthcheckWatch.
   * **No Domain Needed**: If the dashboard asks you to "Add a Site" or "Register a Domain," you can skip it. We are using a free workers.dev address provided by Cloudflare.
 
 * **Step B2A**: The `workers.dev` Subdomain
-  * This is your "mailing address" on the internet. All your scripts will send their pings to this unique name.
+  * All your scripts will send their pings to this unique name. Keep it short if you want shorter URLs but it needs be unique to CloudFlare globally.
     * **Navigate**: On the left-hand sidebar of your dashboard, click `Workers & Pages`.
     * **Initialize**: If this is a brand new account, you will see a "Create application" button or a prompt to "Set up a subdomain."
-    * **Choose Your Name**: Enter a name (e.g., yourname-monitoring).
-      * *Note: This name will appear in your ping URLs like: `https://hcw.yourname-monitoring.workers.dev`*
+    * **Choose Your Name**: Enter a unique name
+      * *Note: This name will appear in your ping URLs like: `https://hcw.uniquename.workers.dev`*
     * **Confirm**: Click **Set up** and then **Continue**.
 
 ### Phase 2: CLI Tooling & Authentication
