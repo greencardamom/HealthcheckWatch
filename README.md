@@ -2,16 +2,14 @@
 # HealthcheckWatch
 
 Who is watching your healthcheck scripts? Regular health checks by design return nothing when working. They also return 
-nothing when **not** working. This presents a problem when scripts break due to code rot, mistakes, breaking upgrades etc..
+nothing when **not** working. HealthcheckWatch is a "Dead Man's Switch" for monitoring cron jobs, backups, and scheduled 
+scripts. It will notify if your cron initiated programs are silently hanging/exiting.
 
-HealthcheckWatch is a "Dead Man's Switch" for monitoring cron jobs, backups, and scheduled scripts. 
+HealthcheckWatch uses a central CloudFlare logger to track script completion by way of a simple GET or POST request when the 
+script compeletes normally. If a script fails to "check in" or ping home on time, it sends you an email.
 
-HealthcheckWatch uses CloudFlare to track your script executions. If a script fails to "check in" (ping home) on time, a 
-watchdog flags it and sends you an email.
-
-It operates very similar to `healthchecks.io`, but it is free and fully under your control without much fuss. It requires a 
-CloudFlare developer account which is free, secure, and stable. These instructions assume you have never used CloudFlare and 
-are meant to be easy to follow.
+It operates very similar to `healthchecks.io`, but is free and fully under your control. It requires a CloudFlare developer 
+account which is free. The setup instructions assume you have never used CloudFlare and are meant to be easy to follow.
 
 ## User Guide
 
