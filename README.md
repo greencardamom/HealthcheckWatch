@@ -1,15 +1,20 @@
 
 # HealthcheckWatch
 
-Who is watching your healthcheck scripts? Regular health checks by design return nothing when working. They also return 
-nothing when **not** working. HealthcheckWatch is a "Dead Man's Switch" for monitoring cron jobs, backups, and scheduled 
-scripts. It will notify if your cron initiated programs are silently hanging/exiting.
+HealthcheckWatch is a "Dead Man's Switch" for monitoring regularly running programs, such as from cron. It will notify if 
+your programs are silently hanging/exiting.
 
-HealthcheckWatch uses a central CloudFlare logger to track script completion by way of a simple GET or POST request when the 
-script compeletes normally. If a script fails to "check in" or ping home on time, it sends you an email.
+HealthcheckWatch uses a central CloudFlare logging database to track script completion by way of a simple GET or POST 
+notification when the user script finishes normally. If a user script fails to ping CloudFlare on time, it sends an alert 
+email.
 
-It operates very similar to `healthchecks.io`, but is free and fully under your control. It requires a CloudFlare developer 
-account which is free. The setup instructions assume you have never used CloudFlare and are meant to be easy to follow.
+It operates very similar to `healthchecks.io`, but is free and fully under your control. It only requires a CloudFlare 
+developer account which is free. The setup instructions assume you have never used CloudFlare and are easy to follow.
+
+You can monitor anything like hardware, network access, web servers, applications, healthcheck scripts.. located in multiple 
+different locations. The client-side emailer program `emailcheck.py` can be located anywhere including entirely off-site of 
+what you are monitoring. The "sever"-side is a secure and robust cloud provider, CloudFlare, that has no server or OS to 
+maintain only a single 100-line JavaScript file.
 
 ## User Guide
 
