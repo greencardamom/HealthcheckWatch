@@ -16,6 +16,34 @@ different locations. The client-side emailer program `emailcheck.py` can be loca
 what you are monitoring. The "sever"-side is a secure and robust cloud provider, CloudFlare, that has no server or OS to 
 maintain only a single 100-line JavaScript file.
 
+## 
+
+While there are many "Dead Man's Switch" services available, HealthcheckWatch is built specifically for users who want total 
+control, zero recurring costs, and a "Unix-native" workflow.
+
+### 1. Zero Infrastructure Costs
+
+Most services charge $5–$20/month for advanced features like long timeouts or numerous monitors.
+
+* **The Competition**: Paid tiers for more than 10-20 checks.
+* **HealthcheckWatch**: Runs entirely on the Cloudflare Free Tier. You can have hundreds of monitors and thousands of pings per month without ever seeing a bill.
+
+### 2. Privacy & Data Ownership
+
+Traditional services store your server names, IP addresses, and uptime history on their proprietary databases.
+* **The Competition**: Your infrastructure metadata is stored on their servers.
+* **HealthcheckWatch**: You own the database. It lives in your Cloudflare account, and the alerts are processed on your local machine. No third party ever sees your script names or server architecture.
+
+### 3. "One-Day" Deployment
+
+Because it uses a Serverless + SQLite (D1) architecture, there is no central "server" to maintain, patch, or secure. Once the Worker is deployed - a mere 100-line JS file - it is "set and forget." CloudFlare is reliable and hosts that JS file at 300+ locations around the planet for rapid speed and reliability.
+
+### 4. Resilient Email
+
+When CloudFlare detects an event it saves it to a CloudFlare database. An email program in this package, `emailcheck.py`, polls that database, pulls down the data, and relays it out to a SMTP server of your choice.
+
+By separating the Database (Cloud) from the Emailer (Local), you aren't reliant on Cloudflare's ability to send emails. Your local `emailcheck.py` script ensures that even if a cloud provider's mail service has issues (or costs), your local system is responsible for the final alert. You have full control where to host `emailcheck.py` offsite or onsite, and can relay outbound mail through any SMTP provider. You can easily modify `emailcheck.py` to try multiple SMTP relays if one is down. 
+
 ## User Guide
 
 ### 1. Simple Heartbeat
