@@ -19,7 +19,7 @@ users who want **total control**, **zero recurring costs**, and a **Unix-native*
 Most services charge $5–$20/month for advanced features.
 
 * **The Competition**: Paid tiers for more than 10-20 checks.
-* **HealthcheckWatch**: Runs entirely on the **Cloudflare Free Tier**. You can have hundreds of monitors and thousands of pings per month without ever seeing a bill.
+* **HealthcheckWatch**: Runs entirely on the **Cloudflare Free Tier**. You can have tens of thousands of monitors and pings per month without ever seeing a bill.
 
 ### 2. Privacy & Data Ownership
 
