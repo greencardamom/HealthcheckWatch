@@ -1,7 +1,7 @@
 
 # HealthcheckWatch
 
-HealthcheckWatch is a "Dead Man's Switch" designed to monitor cron jobs, daemons, router pingable, server reachable, etc... 
+HealthcheckWatch is a "Dead Man's Switch" designed to monitor cron jobs, daemons running, routers pingable, server ports, etc... 
 If your scripts silently hang, crash, or fail to run, HealthcheckWatch ensures you get an email before the silence becomes a 
 problem.
 
@@ -16,7 +16,7 @@ users who want **total control**, **zero recurring costs**, and a **Unix-native*
 
 ### 1. Zero Infrastructure Costs
 
-Most services charge $5–$20/month for advanced features.
+Most health check services charge $5–$20/month for advanced features.
 
 * **The Competition**: Paid tiers for more than 10-20 checks.
 * **HealthcheckWatch**: Runs entirely on the **Cloudflare Free Tier**. You can have tens of thousands of monitors and pings per month without ever seeing a bill.
