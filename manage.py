@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import re
 import sys
 import json
 import time
@@ -7,9 +8,45 @@ import argparse
 import subprocess
 from datetime import datetime
 
+def get_db_name():
+    """Single Source of Truth: Extracts database_name from wrangler.jsonc."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "wrangler.jsonc")
+    default = "healthcheckwatch-db"
+    if not os.path.exists(path):
+        return default
+    try:
+        with open(path, 'r') as f:
+            content = f.read()
+            content = re.sub(r'//.*', '', content)
+            content = re.sub(r'/\*.*?\*/', '', content, flags=re.DOTALL)
+            data = json.loads(content)
+            return data.get("d1_databases", [{}])[0].get("database_name", default)
+    except Exception:
+        return default
+
 # --- CONFIGURATION ---
-DB_NAME = "healthcheckwatch-db"
+DB_NAME = get_db_name()
 LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs", "email_log")
+
+def cmd_deploy(args):
+    """Pushes the local index.js and wrangler.jsonc to Cloudflare."""
+    print(" Preparing to deploy HealthcheckWatch to Cloudflare...")
+    
+    # Optional: Check if we are in the right directory by looking for wrangler.jsonc
+    if not os.path.exists("wrangler.jsonc"):
+        print("Error: wrangler.jsonc not found. Are you in the project root?")
+        sys.exit(1)
+
+    cmd = ["npx", "wrangler", "deploy"]
+    
+    try:
+        # We don't use capture_output=True here because we want the user 
+        # to see the real-time progress bar and the final URL from Wrangler.
+        subprocess.run(cmd, check=True)
+        print("\n Deployment successful!")
+    except subprocess.CalledProcessError:
+        print("\n Deployment failed. Check the error messages above.")
+        sys.exit(1)
 
 def run_wrangler(sql):
     """Executes a D1 SQL command via Wrangler and returns the JSON results."""
@@ -127,6 +164,10 @@ def main():
     # Command: log
     parser_log = subparsers.add_parser("log", help="Tail the last 10 entries of your local email_log.")
     parser_log.set_defaults(func=cmd_log)
+
+    # Command: deploy
+    parser_deploy = subparsers.add_parser("deploy", help='Pushes code updates to Cloudflare. Use this after editing src/index.js.')
+    parser_deploy.set_defaults(func=cmd_deploy)
 
     # If no arguments are provided, show the help screen
     if len(sys.argv) == 1:

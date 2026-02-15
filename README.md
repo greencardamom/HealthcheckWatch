@@ -168,6 +168,7 @@ We need to create the D1 SQL database in the cloud and tell your local project h
 * **Step B3A**: Create the D1 Database
   * Verify you are still inside the `HealthcheckWatch` directory in your terminal. Run this command to provision the database on Cloudflare's servers:
     * `npx wrangler d1 create healthcheckwatch-db`
+    *(Note: if you use a different database name then `healthcheckwatch-db` also update `wrangler.jsonc`)*
 * **Step B3B**: Copy the Binding Configuration
   * After B3A finishes, the terminal will output a block of text containing your `database_id`. Copy paste the `database_id` into the file `wrangler.jsonc` located in your project folder.
 

@@ -3,15 +3,22 @@
   "main": "src/index.js",
   "compatibility_date": "2024-02-13",
   "workers_dev": true,
-  "preview_urls": false,
-  // The scheduled cron trigger runs the watchdog every hour
+  "preview_urls": true,
+
+  // This scheduled cron trigger runs the watchdog every hour at :00 on CloudFlare
+  // It is safer not to run emailcheck.py at the same exact minute to avoid a possible race condition
   "triggers": {
     "crons": ["0 * * * *"]
   },
+
   "d1_databases": [
     {
       "binding": "DB",
+
+      // Changes to database_name affects Steps B3A, B4B and B6B of README.md 
       "database_name": "healthcheckwatch-db",
+
+      // Found in Step B3B of README.md
       "database_id": "xxxx-xxxx-xxxx-xxxx"
     }
   ]
