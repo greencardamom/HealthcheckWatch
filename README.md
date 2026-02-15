@@ -33,14 +33,14 @@ Because it uses a Serverless + SQLite (D1) architecture, there is no ping-receiv
 The "server" is a 100-line JavaScript file hosted globally on CloudFlare's edge network for maximum reliability and 
 performance.
 
-This system is designed to be run from the CLI so you never need to log into the CloudFlare website other than setup. The code can be changed and updated from the CLI.
+This system is designed to be operated from the CLI so you never need to log into the CloudFlare website, other than setup.
 
 ### 4. Flexible & Resilient Alerting
 
-When a failure occurs, Cloudflare logs the event to your D1 database (CloudFlare's SQL DB). The included `emailcheck.py` program pulls that data on a set period basis and sends the alert to you, just like a POP3 client.
+When a failure occurs, Cloudflare logs the event to your D1 database (CloudFlare's SQL DB). The included `emailcheck.py` program pulls that data on a set period basis and sends the alert to you, just like a POP3 client retrieving a mailbox.
 
-* **The Simple Setup**: For most users, running a single instance of `emailcheck.py` on your home server or desktop is "good enough." It takes seconds to set up and provides robust monitoring for your local scripts.
-* **The High-Availability Option**: If you are monitoring mission-critical services, you have the option to run `emailcheck.py` on multiple machines in multiple locations remotely from what you are monitoring. 
+* **The Simple Setup**: For most users, running a single instance of `emailcheck.py` on your home server or desktop is "good enough." It takes seconds to set up and provides robust monitoring for your local applications.
+* **The High-Availability Option**: If you are monitoring mission-critical services, you have the option to run `emailcheck.py` on multiple machines in multiple locations remotely from what you are monitoring. This way `emailcheck.py` itself is not impacted by an outage.
 * **Smart Queueing**: Because the email polling is destructive ("remove from server on pickup"), multiple pollers naturally act as a failover team. If one copy of `emailcheck.py` fails, another once can still work to send the email. You get the reliability of an enterprise monitoring mesh without any of the configuration headaches.
 
 ### 5. Separation of Concerns
