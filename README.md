@@ -5,7 +5,7 @@ HealthcheckWatch is a "Dead Man's Switch" designed to monitor cron jobs, daemons
 If your scripts silently hang, crash, or fail to run, HealthcheckWatch ensures you get an email before the silence becomes a 
 problem.
 
-It operates similarly to `healthchecks.io` and similar services, but it runs on **your own Cloudflare account** which 
+It operates similarly to `healthchecks.io` and similar services, but it runs on **your own CloudFlare account** which 
 provides numerous advantages.
 
 
@@ -19,13 +19,13 @@ users who want **total control**, **zero recurring costs**, and a **Unix-native*
 Most health check services charge $5–$20/month for advanced features.
 
 * **The Competition**: Paid tiers for more than 10-20 checks.
-* **HealthcheckWatch**: Runs entirely on the **Cloudflare Free Tier**. You can have tens of thousands of monitors and pings per month without ever seeing a bill.
+* **HealthcheckWatch**: Runs entirely on the **CloudFlare Free Tier**. You can have tens of thousands of monitors and pings per month without ever seeing a bill.
 
 ### 2. Privacy & Data Ownership
 
 Commercial services may store your server names, IP addresses, and uptime history on their databases which is a security problem.
 * **The Competition**: Your infrastructure metadata is stored on their servers.
-* **HealthcheckWatch**: You own the database. It lives in your Cloudflare account, and the alerts are processed on your machine. No third party ever sees your script names or server architecture.
+* **HealthcheckWatch**: You own the database. It lives in your CloudFlare account, and the alerts are processed on your machine. No third party ever sees your script names or server architecture.
 
 ### 3. Deployment
 
@@ -37,7 +37,7 @@ This system is designed to be operated from the CLI so you never need to log int
 
 ### 4. Flexible & Resilient Alerting
 
-When a failure occurs, Cloudflare logs the event to your D1 database (CloudFlare's SQL DB). The included `emailcheck.py` program pulls that data on a set period basis and sends the alert to you, just like a POP3 client retrieving a mailbox.
+When a failure occurs, CloudFlare logs the event to your D1 database (CloudFlare's SQL DB). The included `emailcheck.py` program pulls that data on a set period basis and sends the alert to you, just like a POP3 client retrieving a mailbox.
 
 * **The Simple Setup**: For most users, running a single instance of `emailcheck.py` on your home server or desktop is "good enough." It takes seconds to set up and provides robust monitoring for your local applications.
 * **The High-Availability Option**: If you are monitoring mission-critical services, you have the option to run `emailcheck.py` on multiple machines in multiple locations remotely from what you are monitoring. This way `emailcheck.py` itself is not impacted by an outage.
@@ -45,7 +45,7 @@ When a failure occurs, Cloudflare logs the event to your D1 database (CloudFlare
 
 ### 5. Separation of Concerns
 
-By separating the **Database** from the **Emailer**, you aren't reliant on Cloudflare's internal mailing 
+By separating the **Database** from the **Emailer**, you aren't reliant on CloudFlare's internal mailing 
 limitations. Your system is responsible for the final alert, allowing you to use any SMTP provider or even modify the script 
 to failover between multiple relays.
 
@@ -63,7 +63,7 @@ curl -s "https://healthcheckwatch.your-subdomain.workers.dev/ping/my-script?t=2&
 curl -s "https://healthcheckwatch.your-subdomain.workers.dev/ping/monthly-job?t=744&token=API_TOKEN" > /dev/null
 ```
 
-* **How it works**: If Cloudflare doesn't see a ping within the time period, it triggers an email alert.
+* **How it works**: If CloudFlare doesn't see a ping within the time period, it triggers an email alert.
 
 ### 2. Customized Messages
 
@@ -122,27 +122,27 @@ ping_watchdog()
   * `git clone https://github.com/greencardamom/HealthcheckWatch.git`
   * `cd HealthcheckWatch`
 * **Step A1B**: Install Node.js
-  * *Cloudflare's command-line tools require Node.js to run on your local computer.*
+  * *CloudFlare's command-line tools require Node.js to run on your local computer.*
   * If you already have Node installed: You can skip this.
   * If you do not: Go to nodejs.org and download the LTS (Long Term Support) installer for your operating system. Run it and accept the default settings.
 * **Step A1C**: Install Node dependencies 
-  * `npm install` *(This reads the included `package.json` file and automatically installs the required Cloudflare Worker packages)*
+  * `npm install` *(This reads the included `package.json` file and automatically installs the required CloudFlare Worker packages)*
 * **Step A1D**: Install Python dependencies
   * `pip install requests`
 
-## Setup and Deploy Cloudflare (B)
+## Setup and Deploy CloudFlare (B)
 
 ### Phase 1: Account Setup & Prerequisites
 
 This phase ensures you have the necessary CloudFlare account and local software.
 
-* **Step B1A**: The Cloudflare Account (Branching Path)
+* **Step B1A**: The CloudFlare Account (Branching Path)
   * If you already have an account: You are golden. Ignore the rest of this section and proceed to Phase 2.
-* **Step B1B**: The Cloudflare Account
+* **Step B1B**: The CloudFlare Account
   * **Sign Up**: Go to `dash.cloudflare.com/sign-up`
   * **Verify**: Check your email immediately for a verification link. You must click this or your deployments will fail later.
-  * **No Credit Card Needed**: Cloudflare will offer "Paid" tiers ($5/mo). Ignore them. The "Free" tier is all you need for HealthcheckWatch.
-  * **No Domain Needed**: If the dashboard asks you to "Add a Site" or "Register a Domain," you can skip it. We are using a free workers.dev address provided by Cloudflare.
+  * **No Credit Card Needed**: CloudFlare will offer "Paid" tiers ($5/mo). Ignore them. The "Free" tier is all you need for HealthcheckWatch.
+  * **No Domain Needed**: If the dashboard asks you to "Add a Site" or "Register a Domain," you can skip it. We are using a free workers.dev address provided by CloudFlare.
 
 * **Step B1C**: The `workers.dev` Subdomain
   * All your scripts will send their pings to this unique name. Keep it short if you want shorter URLs but it needs be unique to CloudFlare globally.
@@ -154,7 +154,7 @@ This phase ensures you have the necessary CloudFlare account and local software.
 
 ### Phase 2: CLI Tooling & Authentication
 
-Wrangler is Cloudflare's official command line tool. Step A1C installed a local copy for this project. You need to now connect it to your account.
+Wrangler is CloudFlare's official command line tool. Step A1C installed a local copy for this project. You need to now connect it to your account.
 
 * **Step B2A**: Authenticate Wrangler
   * Open your local terminal, ensure you are still inside the `HealthcheckWatch` directory, and run:
@@ -166,7 +166,7 @@ Wrangler is Cloudflare's official command line tool. Step A1C installed a local 
 We need to create the D1 SQL database in the cloud and tell your local project how to communicate with it.
 
 * **Step B3A**: Create the D1 Database
-  * Verify you are still inside the `HealthcheckWatch` directory in your terminal. Run this command to provision the database on Cloudflare's servers:
+  * Verify you are still inside the `HealthcheckWatch` directory in your terminal. Run this command to provision the database on CloudFlare's servers:
     * `npx wrangler d1 create healthcheckwatch-db`
     *(Note: if you use a different database name then `healthcheckwatch-db` also update `wrangler.jsonc`)*
 * **Step B3B**: Copy the Binding Configuration
@@ -179,7 +179,7 @@ We will now create the actual tables inside your database using a local SQL file
 * **Step B4A**: Create the SQL File
   * Verify your `HealthcheckWatch` project folder contains a file named `schema.sql`.
 * **Step B4B**: Execute the SQL File Remotely
-  * Push this structure to your live Cloudflare database by running:
+  * Push this structure to your live CloudFlare database by running:
     * `npx wrangler d1 execute healthcheckwatch-db --remote --file=./schema.sql`
 
 ### Phase 5: Securing API and Deployment
@@ -188,12 +188,12 @@ We need to lock down the API so random internet bots cannot write to your databa
 
 * **Step B5A**: Generate a Secret Token
   * Use a password manager to generate a long, random string (e.g., Tr8x$Pq2!vN9mK#jL5wZ@c1XbY). Copy it to your clipboard.
-* **Step B5B**: Upload the Secret to Cloudflare
+* **Step B5B**: Upload the Secret to CloudFlare
   * Run this command:
     * `npx wrangler secret put API_TOKEN`
-  * The terminal will prompt you to enter the secret. Paste the string you generated in **Step B5A** and press Enter. This stores the secret securely with Cloudflare.
+  * The terminal will prompt you to enter the secret. Paste the string you generated in **Step B5A** and press Enter. This stores the secret securely with CloudFlare.
 * **Step B5C**: Deploy the Worker
-  * Finally, push the application to Cloudflare's global network:
+  * Finally, push the application to CloudFlare's global network:
     * `npx wrangler deploy`
   * The terminal will output the live URL of your new HealthcheckWatch API!
 
@@ -221,8 +221,8 @@ The `config.ini` is the main configuration file for HealthcheckWatch. It contain
   * `cp config.ini.example config.ini`
 * **Step C1B**: Open the file and fill in details
   * **api_url**: The full URL provided when you run `npx wrangler deploy` (see **B5C**). Do not include a trailing slash.
-  * **api_token**: The exact secret string you generated and uploaded to Cloudflare via `npx wrangler secret put API_TOKEN` (see **B5B**).
-  * **squelch**: Set to `no` by default. If you change this to `yes`, the script will still fetch and clear alerts from Cloudflare, and write them to your `logs/email_log`, but it will not send emails. This is useful for planned downtime.
+  * **api_token**: The exact secret string you generated and uploaded to CloudFlare via `npx wrangler secret put API_TOKEN` (see **B5B**).
+  * **squelch**: Set to `no` by default. If you change this to `yes`, the script will still fetch and clear alerts from CloudFlare, and write them to your `logs/email_log`, but it will not send emails. This is useful for planned downtime.
   * **SMTP host**: Your email provider's SMTP server (e.g., `smtp.gmail.com`, `mail.yourdomain.net`).
   * **SMTP port**: Usually `465` for SSL or `587` for STARTTLS.
   * **SMTP user**: Your full email address.
@@ -230,7 +230,7 @@ The `config.ini` is the main configuration file for HealthcheckWatch. It contain
   * **SMTP use_ssl**: Set to `yes` if using port 465 (Implicit SSL). Set to no if using port `587` (STARTTLS).
 
 ### Phase 2: Automation
-To make the system fully automated, you need to tell your server to run `emailcheck.py` on a regular schedule to fetch pending alerts from Cloudflare.
+To make the system fully automated, you need to tell your server to run `emailcheck.py` on a regular schedule to fetch pending alerts from CloudFlare.
 
 * **Step C2A**: Add the Python shebang
   * Open `emailcheck.py` and ensure the very first line points to the Python binary inside your new virtual environment. 
@@ -250,10 +250,10 @@ To make the system fully automated, you need to tell your server to run `emailch
 Use the included `manage.py` to manage your monitors.
 
 * `./manage.py list`: See active monitors and their "Expected Death" times.
-* `./manage.py status`: Check if the Cloudflare outbox is healthy or backed up.
+* `./manage.py status`: Check if the CloudFlare outbox is healthy or backed up.
 * `./manage.py remove <id>`: Retire a monitor.
 * `./manage.py pause <id> <hours>`: Temporarily extend a timeout for maintenance.
-* `./manage.py deploy`: Deploy (upload to CF) code changes to src/index.js
+* `./manage.py deploy`: Upload to CloudFlare changes made to src/index.js
 
 ## License
 
