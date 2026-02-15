@@ -253,15 +253,6 @@ Use the included `manage.py` to manage your monitors.
 * `./manage.py remove <id>`: Retire a monitor.
 * `./manage.py pause <id> <hours>`: Temporarily extend a timeout for maintenance.
 
-## Design Philosophy
-
-The true power of HealthcheckWatch is that `emailcheck.py` does not have to run on the machine being monitored. You can have ten different servers across your house, AWS, and DigitalOcean running scripts and pinging Cloudflare.
-
-* You run `emailcheck.py` on just one reliable machine (like a dedicated Raspberry Pi, or a $4/month cloud VPS).
-* If your home lab's router catches fire, Cloudflare flags all those home servers as "dead." Your external VPS then pulls that alert from Cloudflare and emails you.
-* If you relied on local-only pings, every single machine you own needs its own database, its own SMTP credentials, and its own cron jobs to manage its own alerts. Cloudflare centralizes the logic. Your client machines are "dumb"—they just send a basic URL curl.
-* Thus how much protection you have will be determined by where `emailcheck.py` is hosted relative to your monitored systems, and how your email is delivered relative to your monitored systems. 
-
 ## License
 
 HealthcheckWatch is open-source software licensed under the [GNU AGPLv3](LICENSE).
