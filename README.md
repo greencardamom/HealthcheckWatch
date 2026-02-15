@@ -23,7 +23,7 @@ Most services charge $5–$20/month for advanced features.
 
 ### 2. Privacy & Data Ownership
 
-Traditional services store your server names, IP addresses, and uptime history on their proprietary databases.
+Commercial services may store your server names, IP addresses, and uptime history on their databases which is a security problem.
 * **The Competition**: Your infrastructure metadata is stored on their servers.
 * **HealthcheckWatch**: You own the database. It lives in your Cloudflare account, and the alerts are processed on your machine. No third party ever sees your script names or server architecture.
 
