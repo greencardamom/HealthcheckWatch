@@ -1,9 +1,9 @@
 
 # HealthcheckWatch
 
-HealthcheckWatch is a "Dead Man's Switch" designed to monitor cron jobs, hardware sensors, and background processes. If your 
-scripts silently hang, crash, or fail to run, HealthcheckWatch ensures you get an email before the silence becomes a 
-problem.
+HealthcheckWatch is a "Dead Man's Switch" designed to monitor cron jobs, daemons, application health, server availability, 
+etc... If your scripts silently hang, crash, or fail to run, HealthcheckWatch ensures you get an email before the silence 
+becomes a problem.
 
 It operates similarly to `healthchecks.io` and similar services, but it runs on **your own Cloudflare account** which 
 provides numerous advantages.
