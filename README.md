@@ -25,7 +25,7 @@ Most services charge $5–$20/month for advanced features.
 
 Traditional services store your server names, IP addresses, and uptime history on their proprietary databases.
 * **The Competition**: Your infrastructure metadata is stored on their servers.
-* **HealthcheckWatch**: You own the database. It lives in your Cloudflare account, and the alerts are processed on your local machine. No third party ever sees your script names or server architecture.
+* **HealthcheckWatch**: You own the database. It lives in your Cloudflare account, and the alerts are processed on your machine. No third party ever sees your script names or server architecture.
 
 ### 3. Deployment
 
@@ -45,7 +45,7 @@ When a failure occurs, Cloudflare logs the event to your D1 database (CloudFlare
 
 ### 5. Separation of Concerns
 
-By separating the **Database (Cloud)** from the **Emailer (Local)**, you aren't reliant on Cloudflare's internal mailing 
+By separating the **Database** from the **Emailer**, you aren't reliant on Cloudflare's internal mailing 
 limitations. Your system is responsible for the final alert, allowing you to use any SMTP provider or even modify the script 
 to failover between multiple relays.
 
@@ -221,7 +221,7 @@ The `config.ini` is the main configuration file for HealthcheckWatch. It contain
 * **Step C1B**: Open the file and fill in details
   * **api_url**: The full URL provided when you run `npx wrangler deploy` (see **B5C**). Do not include a trailing slash.
   * **api_token**: The exact secret string you generated and uploaded to Cloudflare via `npx wrangler secret put API_TOKEN` (see **B5B**).
-  * **squelch**: Set to `no` by default. If you change this to `yes`, the script will still fetch and clear alerts from Cloudflare, and write them to your local `logs/email_log`, but it will not send emails. This is useful for planned downtime.
+  * **squelch**: Set to `no` by default. If you change this to `yes`, the script will still fetch and clear alerts from Cloudflare, and write them to your `logs/email_log`, but it will not send emails. This is useful for planned downtime.
   * **SMTP host**: Your email provider's SMTP server (e.g., `smtp.gmail.com`, `mail.yourdomain.net`).
   * **SMTP port**: Usually `465` for SSL or `587` for STARTTLS.
   * **SMTP user**: Your full email address.
@@ -229,7 +229,7 @@ The `config.ini` is the main configuration file for HealthcheckWatch. It contain
   * **SMTP use_ssl**: Set to `yes` if using port 465 (Implicit SSL). Set to no if using port `587` (STARTTLS).
 
 ### Phase 2: Automation
-To make the system fully automated, you need to tell your local server to run `emailcheck.py` on a regular schedule to fetch pending alerts from Cloudflare.
+To make the system fully automated, you need to tell your server to run `emailcheck.py` on a regular schedule to fetch pending alerts from Cloudflare.
 
 * **Step C2A**: Add the Python shebang
   * Open `emailcheck.py` and ensure the very first line points to the Python binary inside your new virtual environment. 
