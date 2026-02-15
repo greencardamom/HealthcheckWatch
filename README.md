@@ -253,6 +253,7 @@ Use the included `manage.py` to manage your monitors.
 * `./manage.py status`: Check if the Cloudflare outbox is healthy or backed up.
 * `./manage.py remove <id>`: Retire a monitor.
 * `./manage.py pause <id> <hours>`: Temporarily extend a timeout for maintenance.
+* `./manage.py deploy`: Deploy (upload to CF) code changes to src/index.js
 
 ## License
 
