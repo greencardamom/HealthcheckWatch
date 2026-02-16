@@ -253,7 +253,7 @@ Use the included `manage.py` to manage your monitors.
 * `./manage.py list`: See active monitors and their "Death Date" times.
 * `./manage.py status`: Check if the CloudFlare outbox is healthy or backed up.
 * `./manage.py remove <id>`: Retire a monitor.
-* `./manage.py pause <id> <hours>`: Temporarily extend a timeout for maintenance.
+* `./manage.py pause <id> <hours>`: Add or subtract (e.g. 1 or -1) hours until timeout for an active monitor.
 * `./manage.py deploy`: Upload to CloudFlare changes made to `src/index.js` and `wranger.jsonc`
 * `./manage.py test-alert`: Create a test alert.
 
