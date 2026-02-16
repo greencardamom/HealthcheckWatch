@@ -5,11 +5,17 @@
   "workers_dev": true,
   "preview_urls": true,
 
-  // This scheduled cron trigger runs the watchdog every hour at :00 on CloudFlare
-  // It is safer not to run emailcheck.py at the same exact minute to avoid a possible race condition
+  // The scheduled cron trigger runs the watchdog:
+  //   every hour: ["0 * * * *"]
+  //   every quarter-hour: ["0,15,30,45 * * * *"]
+  //   once a day at 1am: ["0 1 * * *"]
+  //   etc.
+
   "triggers": {
     "crons": ["0 * * * *"]
   },
+
+  // It is safer not to run emailcheck.py from a local cron at the same exact minute to avoid a possible race condition
 
   "d1_databases": [
     {

@@ -6,7 +6,8 @@ import json
 import time
 import argparse
 import subprocess
-from datetime import datetime
+import configparser
+from datetime import datetime, timezone
 
 def get_db_name():
     """Single Source of Truth: Extracts database_name from wrangler.jsonc."""
@@ -27,6 +28,22 @@ def get_db_name():
 # --- CONFIGURATION ---
 DB_NAME = get_db_name()
 LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs", "email_log")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_FILE = os.path.join(BASE_DIR, "config.ini")
+
+def get_tz_setting():
+    """Reads the timezone setting from config.ini."""
+    if not os.path.exists(CONFIG_FILE):
+        return 'local'
+    # Fixed: Added inline_comment_prefixes so "UTC # comment" parses as "UTC"
+    config = configparser.ConfigParser(interpolation=None, inline_comment_prefixes=('#', ';'))
+    config.read(CONFIG_FILE)
+    try:
+        return config.get('Settings', 'timezone', fallback='local').lower()
+    except (configparser.NoSectionError, configparser.NoOptionError):
+        return 'local'
+
+TZ_SETTING = get_tz_setting()
 
 def cmd_deploy(args):
     """Pushes the local index.js and wrangler.jsonc to Cloudflare."""
@@ -64,8 +81,15 @@ def run_wrangler(sql):
         sys.exit(1)
 
 def format_time(epoch):
-    """Converts a Unix timestamp to a readable local string."""
-    return datetime.fromtimestamp(epoch).strftime('%Y-%m-%d %H:%M:%S')
+    """Converts a Unix epoch to a formatted string based on config.ini timezone."""
+    if not epoch:
+        return "N/A"
+    
+    if TZ_SETTING == 'utc':
+        return datetime.fromtimestamp(epoch, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        # Defaults to the server's local system timezone
+        return datetime.fromtimestamp(epoch).strftime('%Y-%m-%d %H:%M:%S')
 
 def cmd_list(args):
     results = run_wrangler("SELECT id, last_ping, timeout_hours FROM monitors ORDER BY id ASC")
@@ -73,10 +97,14 @@ def cmd_list(args):
         print("No active monitors found.")
         return
 
-    print(f"{'MONITOR ID':<30} | {'LAST PING':<20} | {'EXPECTED DEATH'}")
+    tz_label = "(UTC)" if TZ_SETTING == 'utc' else "(LOCAL)"
+
+    print(f"{'MONITOR ID':<30} | {'LAST PING ' + tz_label:<20} | {'DEATH DATE ' + tz_label}")
     print("-" * 75)
-    
+
+    # Define 'now' as the current Unix epoch time
     now = int(time.time())
+
     for row in results:
         id_name = row['id']
         last = row['last_ping']
@@ -84,8 +112,10 @@ def cmd_list(args):
         
         death_time = last + (timeout * 3600)
         
-        # Add an indicator if it's already dead
+        # Format the expected death time
         status = format_time(death_time)
+        
+        # Add the [DEAD] indicator if the current time has passed the death time
         if now > death_time:
             status += " [DEAD]"
             
@@ -113,6 +143,70 @@ def cmd_pause(args):
     sql = f"UPDATE monitors SET last_ping = CAST(strftime('%s', 'now') AS INTEGER) + ({hours} * 3600) WHERE id = '{safe_id}'"
     run_wrangler(sql)
     print(f"Monitor '{safe_id}' has been paused. Its expected death has been pushed out by {hours} hours.")
+
+def get_cron_minutes_until():
+    """Parses wrangler.jsonc to find the next cron execution time."""
+    current_minute = datetime.now().minute
+    path = os.path.join(BASE_DIR, "wrangler.jsonc")
+    
+    # Fallback default if things go wrong
+    default_until = 60 - current_minute
+    
+    if not os.path.exists(path):
+        return default_until
+        
+    try:
+        with open(path, 'r') as f:
+            content = f.read()
+            content = re.sub(r'//.*', '', content)
+            content = re.sub(r'/\*.*?\*/', '', content, flags=re.DOTALL)
+            data = json.loads(content)
+            
+        crons = data.get("triggers", {}).get("crons", [])
+        if not crons:
+            return default_until
+            
+        # Grab the minute field from the cron string (e.g. "10 * * * *")
+        minute_field = crons[0].split()[0]
+        
+        if minute_field.isdigit():
+            target = int(minute_field)
+            if current_minute < target:
+                return target - current_minute
+            else:
+                return (60 - current_minute) + target
+        elif minute_field.startswith('*/') and minute_field[2:].isdigit():
+            interval = int(minute_field[2:])
+            next_target = ((current_minute // interval) + 1) * interval
+            return next_target - current_minute
+        elif minute_field == '*':
+            return 1  # Runs every minute
+        else:
+            return default_until
+            
+    except Exception:
+        return default_until
+
+def cmd_test_alert(args):
+    """Injects a test-alert monitor with a 0-hour timeout directly into the database."""
+    print("Injecting 'test-alert' monitor into Cloudflare D1 database...")
+    sql = """
+    INSERT INTO monitors (id, last_ping, timeout_hours, alert_subject, alert_body) 
+    VALUES ('test-alert', CAST(strftime('%s', 'now') AS INTEGER), 0, 'TEST ALERT (HCW): manage.py', 'This is a forced test alert to verify the watchdog pipeline.') 
+    ON CONFLICT(id) DO UPDATE SET 
+    last_ping = excluded.last_ping, 
+    timeout_hours = excluded.timeout_hours,
+    alert_subject = excluded.alert_subject,
+    alert_body = excluded.alert_body;
+    """
+    run_wrangler(sql)
+    
+    # Dynamically calculate minutes until the next sweep
+    minutes_until = get_cron_minutes_until()
+    
+    print("\n[DONE] Test monitor successfully created and flagged as dead on arrival.")
+    print(f"The Cloudflare watchdog will drop the alert in the outbox in ~{minutes_until} minutes.")
+    print("Run emailcheck.py after then.")
 
 def cmd_log(args):
     if not os.path.exists(LOG_FILE):
@@ -160,6 +254,10 @@ def main():
     parser_pause.add_argument("id", help="The unique ID of the monitor")
     parser_pause.add_argument("hours", type=int, help="Hours to pause")
     parser_pause.set_defaults(func=cmd_pause)
+
+    # Command: test-alert
+    parser_test = subparsers.add_parser("test-alert", help="Injects a test monitor that will instantly trigger an alert at the top of the hour.")
+    parser_test.set_defaults(func=cmd_test_alert)
 
     # Command: log
     parser_log = subparsers.add_parser("log", help="Tail the last 10 entries of your local email_log.")

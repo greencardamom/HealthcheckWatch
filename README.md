@@ -127,8 +127,6 @@ ping_watchdog()
   * If you do not: Go to nodejs.org and download the LTS (Long Term Support) installer for your operating system. Run it and accept the default settings.
 * **Step A1C**: Install Node dependencies 
   * `npm install` *(This reads the included `package.json` file and automatically installs the required CloudFlare Worker packages)*
-* **Step A1D**: Install Python dependencies
-  * `pip install requests`
 
 ## Setup and Deploy CloudFlare (B)
 
@@ -206,10 +204,13 @@ We need to lock down the API so random internet bots cannot write to your databa
   * **If it returns `[DONE] Heartbeat logged for monitor: test-monitor`, you have successfully built a serverless CloudFlare system.**
 * **Step B6B**: Fake an alert
   * Inject a fake alert into the CloudFlare database
-    * `npx wrangler d1 execute healthcheckwatch-db --remote --command="INSERT INTO outbox (subject, body) VALUES ('Test Watchdog Alert', 'This is a live test of the HealthcheckWatch email delivery system.');"`
-  * Pull the alert and send an email:
+    * `./manage-py test-alert`
+  * Wait the required time then pull the alert to send an email:
     * `./emailcheck.py`
-  * You should receive an email with the alert. If not double check your `config.ini` SMTP settings are working.
+  * You should receive an email. If not, double check your `config.ini` SMTP settings are working.
+  * Normally CloudFlare checks for alerts at the top of the hour. This can be adjusted in `wrangler.jsonc`
+    * `"crons": ["0 * * * *"]` Change the `0` to `10` to check at 10 minutes after the hour.
+    * Changes to `wrangerl.jsonc` require `./manage.py deploy`
 
 ## Final Setup (C)
 
@@ -223,25 +224,25 @@ The `config.ini` is the main configuration file for HealthcheckWatch. It contain
   * **api_url**: The full URL provided when you run `npx wrangler deploy` (see **B5C**). Do not include a trailing slash.
   * **api_token**: The exact secret string you generated and uploaded to CloudFlare via `npx wrangler secret put API_TOKEN` (see **B5B**).
   * **squelch**: Set to `no` by default. If you change this to `yes`, the script will still fetch and clear alerts from CloudFlare, and write them to your `logs/email_log`, but it will not send emails. This is useful for planned downtime.
+  * **timezone**: Set to `local` or `UTC`.
   * **SMTP host**: Your email provider's SMTP server (e.g., `smtp.gmail.com`, `mail.yourdomain.net`).
   * **SMTP port**: Usually `465` for SSL or `587` for STARTTLS.
   * **SMTP user**: Your full email address.
   * **SMTP pass**: Your email account password.
   * **SMTP use_ssl**: Set to `yes` if using port 465 (Implicit SSL). Set to no if using port `587` (STARTTLS).
+* **Step C1C**: Secure the file
+  * `chmod 600 config.ini`
 
 ### Phase 2: Automation
 To make the system fully automated, you need to tell your server to run `emailcheck.py` on a regular schedule to fetch pending alerts from CloudFlare.
 
-* **Step C2A**: Add the Python shebang
-  * Open `emailcheck.py` and ensure the very first line points to the Python binary inside your new virtual environment. 
-  * Example: `#!/home/youruser/HealthcheckWatch/healthcheckwatch_env/bin/python`
-* **Step C2B**: Open your crontab editor
+* **Step C2A**: Open your crontab editor
   * Run `crontab -e` in your terminal.
-* **Step C2C**: Add the polling interval
+* **Step C2B**: Add the polling interval
   * Add a line to run the script every 15 minutes.
-  * Example every 15 minutes:
+  * Example once an hour:
     ```cron
-    */15 * * * * /path/to/your/HealthcheckWatch/emailcheck.py
+    2 * * * * /path/to/your/HealthcheckWatch/emailcheck.py
     ```
   * *Note: During an outage you will receive **one** alert it won't keep sending emails.*
 
@@ -249,11 +250,12 @@ To make the system fully automated, you need to tell your server to run `emailch
 
 Use the included `manage.py` to manage your monitors.
 
-* `./manage.py list`: See active monitors and their "Expected Death" times.
+* `./manage.py list`: See active monitors and their "Death Date" times.
 * `./manage.py status`: Check if the CloudFlare outbox is healthy or backed up.
 * `./manage.py remove <id>`: Retire a monitor.
 * `./manage.py pause <id> <hours>`: Temporarily extend a timeout for maintenance.
 * `./manage.py deploy`: Upload to CloudFlare changes made to src/index.js
+* `./manage.py test-alert`: Create a test alert.
 
 ## License
 

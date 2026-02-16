@@ -30,9 +30,9 @@ export default {
       // If the bash script sent a JSON Last Will and Testament, parse it
       if (request.headers.get('content-type')?.includes('application/json')) {
         const data = await request.json();
-        if (data.timeout) timeout = data.timeout;
-        if (data.subject) subject = data.subject;
-        if (data.body) body = data.body;
+        if (data.timeout !== undefined) timeout = data.timeout;
+        if (data.subject !== undefined) subject = data.subject;
+        if (data.body !== undefined) body = data.body;
       }
 
       const now = Math.floor(Date.now() / 1000); // Unix timestamp in seconds
@@ -71,6 +71,7 @@ export default {
     return new Response('Not Found', { status: 404 });
   },
 
+
   // ========================================================================
   // 2. CRON WATCHDOG (Runs automatically every hour)
   // ========================================================================
@@ -81,26 +82,37 @@ export default {
     const query = `SELECT * FROM monitors WHERE (? - last_ping) > (timeout_hours * 3600)`;
     const { results: deadMonitors } = await env.DB.prepare(query).bind(now).all();
 
-    // If everything is healthy, go back to sleep
     if (deadMonitors.length === 0) return;
 
     const stmts = [];
     
     for (const monitor of deadMonitors) {
-      // Use custom JSON message if provided, otherwise generate a default message
+      // Helper to format Unix Epoch to readable string
+      const fmt = (epoch) => new Date(epoch * 1000).toISOString().replace('T', ' ').split('.')[0];
+      
+      const lastPingStr = fmt(monitor.last_ping);
+      const expectedDeathStr = fmt(monitor.last_ping + (monitor.timeout_hours * 3600));
+
+      // Build the diagnostic table for THIS specific failure
+      const evidence = 
+        `MONITOR ID                     | LAST PING (UTC)      | DEATH DATE (UTC)\n` +
+        `---------------------------------------------------------------------------\n` +
+        `${monitor.id.padEnd(30)} | ${lastPingStr} | ${expectedDeathStr}\n`;
+
       const subject = monitor.alert_subject || `CRITICAL: Watchdog Timeout - ${monitor.id}`;
-      const body = monitor.alert_body || `The monitor '${monitor.id}' has not checked in for over ${monitor.timeout_hours} hours.`;
       
-      // Step A: Insert the alert into the outbox for the local poller to find
-      stmts.push(env.DB.prepare('INSERT INTO outbox (subject, body) VALUES (?, ?)').bind(subject, body));
+      // Append the diagnostic table to the body
+      const baseBody = monitor.alert_body || `The monitor '${monitor.id}' has not checked in for over ${monitor.timeout_hours} hours.`;
+      const finalBody = `${baseBody}\n\n${evidence}`;
       
-      // Step B: Delete the dead monitor from the active table. 
-      // This prevents the watchdog from spamming your outbox with the same alert every single hour. 
-      // When the script eventually runs again, it will auto-register via the upsert in the fetch logic.
+      // Step A: Insert the alert into the outbox
+      stmts.push(env.DB.prepare('INSERT INTO outbox (subject, body) VALUES (?, ?)').bind(subject, finalBody));
+      
+      // Step B: Delete the dead monitor to prevent alert spamming
       stmts.push(env.DB.prepare('DELETE FROM monitors WHERE id = ?').bind(monitor.id));
     }
 
-    // Execute the database modifications in a single transaction
     await env.DB.batch(stmts);
   }
+
 };

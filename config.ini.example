@@ -6,10 +6,13 @@ api_token = YOUR_SECRET_TOKEN
 # Set to 'yes' to NOT send emails (e.g., during planned downtime) but continue logging
 squelch = no
 
+# Can be 'local' or 'UTC'
+timezone = local
+
 [SMTP]
 host = mail.host.net
 port = 465
 user = user@domain.net
-pass = your_password!
+pass = your_password
 # Set to 'yes' for port 465 (Implicit SSL), 'no' for port 587 (STARTTLS)
 use_ssl = yes
