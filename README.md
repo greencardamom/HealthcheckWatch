@@ -237,12 +237,14 @@ To make the system fully automated, you need to tell your server to run `emailch
 * **Step C2A**: Open your crontab editor
   * Run `crontab -e` in your terminal.
 * **Step C2B**: Add the polling interval
-  * Add a line to run the script every 15 minutes.
-  * Example once an hour:
+  * Add a line to run the script.
+  * Example once an hour at 2 minutes after:
     ```cron
     2 * * * * /path/to/your/HealthcheckWatch/emailcheck.py
     ```
   * *Note: During an outage you will receive **one** alert it won't keep sending emails.*
+  * *Note: Match how often you poll with how frequently cron runs on CloudFlare see `wranger.jsonc` for settings (any change to `wranger.jsonc` requires pushing changes with `./manage deploy`)*
+  * *Note: `emailcheck.py` should run about 1 minute after cron on CloudFlare to avoid a possible race condition. By default cron on CloudFlare runs at minute one once an hour, so you want to run `emailcheck.py` at minute 2 once an hour.*
 
 ### Phase 3: manage.py
 
