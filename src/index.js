@@ -14,7 +14,7 @@ export default {
     const authHeader = request.headers.get('Authorization');
     const queryToken = url.searchParams.get('token');
     if (authHeader !== `Bearer ${env.API_TOKEN}` && queryToken !== env.API_TOKEN) {
-      return new Response('Unauthorized', { status: 401 });
+      return new Response('HealthcheckWatch (index.js): Unauthorized', { status: 401 });
     }
 
     // --- ROUTE: POST/GET /ping/:id ---
@@ -48,7 +48,7 @@ export default {
           alert_body = excluded.alert_body
       `).bind(id, now, timeout, subject, body).run();
 
-      return new Response(`[DONE] Heartbeat logged for monitor: ${id}`);
+      return new Response('');
     }
 
     // --- ROUTE: GET /outbox ---
@@ -64,11 +64,11 @@ export default {
     // Your local polling script calls this after successfully sending the emails
     if (request.method === 'DELETE' && path === '/outbox') {
       await env.DB.prepare('DELETE FROM outbox').run();
-      return new Response('[DONE] Outbox cleared');
+      return new Response('');
     }
 
     // Fallback for bad URLs
-    return new Response('Not Found', { status: 404 });
+    return new Response('HealthcheckWatch (index.js): Not Found', { status: 404 });
   },
 
 
@@ -95,7 +95,7 @@ export default {
 
       // Build the diagnostic table for THIS specific failure
       const evidence = 
-        `MONITOR ID                     | LAST PING (UTC)      | DEATH DATE (UTC)\n` +
+        `MONITOR ID                      | LAST PING (UTC)      | DEATH DATE (UTC)\n` +
         `---------------------------------------------------------------------------\n` +
         `${monitor.id.padEnd(30)} | ${lastPingStr} | ${expectedDeathStr}\n`;
 
