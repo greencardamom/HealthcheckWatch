@@ -5,6 +5,7 @@ import smtplib
 import ssl
 import json
 import re
+import time
 import urllib.request
 import urllib.error
 import configparser
@@ -164,16 +165,27 @@ def main():
     }
 
     req = urllib.request.Request(f"{api_url}/outbox", headers=headers)
-    try:
-        with urllib.request.urlopen(req, timeout=10) as response:
-            response_data = response.read().decode('utf-8')
-            alerts = json.loads(response_data)
-    except urllib.error.URLError as e:
-        sys.stderr.write(f"API Fetch Error: {e}\n")
-        sys.exit(1)
-    except json.JSONDecodeError as e:
-        sys.stderr.write(f"API JSON Parse Error: {e}\n")
-        sys.exit(1)
+    
+    alerts = []
+    max_retries = 3
+
+    for attempt in range(max_retries):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as response:
+                response_data = response.read().decode('utf-8')
+                alerts = json.loads(response_data)
+                break 
+        except (urllib.error.URLError, TimeoutError, ConnectionResetError) as e:
+            if attempt < max_retries - 1:
+                # ONLY print if we are NOT in cron (isatty is True)
+                if sys.stdout.isatty():
+                    print(f"Attempt {attempt + 1} failed: {e}. Retrying in 2s...")
+                time.sleep(2)
+                continue
+            else:
+                # FINAL FAILURE: This goes to stderr and ALWAYS triggers a cron email
+                sys.stderr.write(f"CRITICAL: API Fetch failed after {max_retries} attempts: {e}\n")
+                sys.exit(1)
 
     if not alerts:
         return
@@ -196,12 +208,13 @@ def main():
     if all_processed:
         del_req = urllib.request.Request(f"{api_url}/outbox", headers=headers, method='DELETE')
         try:
-            with urllib.request.urlopen(del_req, timeout=10) as response:
+            with urllib.request.urlopen(del_req, timeout=30) as response:
                 pass
             if sys.stdout.isatty():
                 print(f"DONE | Cloudflare outbox cleared ({db_name})")
-        except urllib.error.URLError as e:
+        except Exception as e:
             sys.stderr.write(f"Failed to clear outbox: {e}\n")
+
 
 if __name__ == "__main__":
     main()
