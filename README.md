@@ -195,21 +195,6 @@ We need to lock down the API so random internet bots cannot write to your databa
 
 ### Phase 6: Test
   
-* **Step B6A**: Simple test
-  * Run a test
-    * `curl -X POST "https://healthcheckwatch.yourhostname.workers.dev/ping/test-monitor" -H "Authorization: Bearer API_TOKEN"`
-    * *`yourhostname` was printed during B5C. `API_TOKEN` was created in B5B.*
-  * **If it returns `[DONE] Heartbeat logged for monitor: test-monitor`, you have successfully built a serverless CloudFlare system.**
-* **Step B6B**: Fake an alert
-  * Inject a fake alert into the CloudFlare database
-    * `./manage-py test-alert`
-  * Wait the required time then pull the alert to send an email:
-    * `./emailcheck.py`
-  * You should receive an email. If not, double check your `config.ini` SMTP settings are working.
-  * Normally CloudFlare checks for alerts at the top of the hour. This can be adjusted in `wrangler.jsonc`
-    * `"crons": ["0 * * * *"]` Change the `0` to `10` to check at 10 minutes after the hour.
-    * Changes to `wrangerl.jsonc` require `./manage.py deploy`
-
 ## Final Setup (C)
 
 ### Phase 1: config.ini
@@ -230,6 +215,21 @@ The `config.ini` is the main configuration file for HealthcheckWatch. It contain
   * **SMTP use_ssl**: Set to `yes` if using port 465 (Implicit SSL). Set to no if using port `587` (STARTTLS).
 * **Step C1C**: Secure the file
   * `chmod 600 config.ini`
+
+* **Step C2A**: Simple test
+  * Run a test
+    * `curl -X POST "https://healthcheckwatch.yourhostname.workers.dev/ping/test-monitor" -H "Authorization: Bearer API_TOKEN"`
+    * *`yourhostname` was printed during B5C. `API_TOKEN` was created in B5B.*
+  * **If it returns `[DONE] Heartbeat logged for monitor: test-monitor`, you have successfully built a serverless CloudFlare system.**
+* **Step C2B**: Fake an alert
+  * Inject a fake alert into the CloudFlare database
+    * `./manage-py test-alert`
+  * Wait the required time then pull the alert to send an email:
+    * `./emailcheck.py`
+  * You should receive an email. If not, double check your `config.ini` SMTP settings are working.
+  * Normally CloudFlare checks for alerts at the top of the hour. This can be adjusted in `wrangler.jsonc`
+    * `"crons": ["0 * * * *"]` Change the `0` to `10` to check at 10 minutes after the hour.
+    * Changes to `wrangerl.jsonc` require `./manage.py deploy`
 
 ### Phase 2: Automation
 To make the system fully automated, you need to tell your server to run `emailcheck.py` on a regular schedule to fetch pending alerts from CloudFlare.
