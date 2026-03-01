@@ -192,8 +192,6 @@ We need to lock down the API so random internet bots cannot write to your databa
   * Finally, push the application to CloudFlare's global network:
     * `npx wrangler deploy`
   * The terminal will output the live URL of your new HealthcheckWatch API!
-
-### Phase 6: Test
   
 ## Final Setup (C)
 
@@ -216,6 +214,8 @@ The `config.ini` is the main configuration file for HealthcheckWatch. It contain
 * **Step C1C**: Secure the file
   * `chmod 600 config.ini`
 
+### Phase 2: Test
+
 * **Step C2A**: Simple test
   * Run a test
     * `curl -X POST "https://healthcheckwatch.yourhostname.workers.dev/ping/test-monitor" -H "Authorization: Bearer API_TOKEN"`
@@ -231,12 +231,12 @@ The `config.ini` is the main configuration file for HealthcheckWatch. It contain
     * `"crons": ["0 * * * *"]` Change the `0` to `10` to check at 10 minutes after the hour.
     * Changes to `wrangerl.jsonc` require `./manage.py deploy`
 
-### Phase 2: Automation
+### Phase 3: Automation
 To make the system fully automated, you need to tell your server to run `emailcheck.py` on a regular schedule to fetch pending alerts from CloudFlare.
 
-* **Step C2A**: Open your crontab editor
+* **Step C3A**: Open your crontab editor
   * Run `crontab -e` in your terminal.
-* **Step C2B**: Add the polling interval
+* **Step C3B**: Add the polling interval
   * Add a line to run the script.
   * Example once an hour at 2 minutes after:
     ```cron
@@ -246,7 +246,7 @@ To make the system fully automated, you need to tell your server to run `emailch
   * *Note: Match how often you poll for email with how frequently cron runs on CloudFlare. See `wranger.jsonc` for CloudFlare cron settings and remember any change to `wranger.jsonc` also requires `./manage deploy`*
   * *Note: `emailcheck.py` should run about 1 minute after cron on CloudFlare to avoid a possible race condition. By default cron on CloudFlare runs at minute one once an hour, so you want to run `emailcheck.py` at minute 2 once an hour.*
 
-### Phase 3: manage.py
+### Phase 4: manage.py
 
 Use the included `manage.py` to manage your monitors.
 
