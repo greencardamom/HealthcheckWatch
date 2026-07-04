@@ -45,36 +45,109 @@ def get_tz_setting():
 
 TZ_SETTING = get_tz_setting()
 
+def get_config_value(section, key, fallback=''):
+    """Reads a single value from config.ini, returning fallback if unavailable."""
+    if not os.path.exists(CONFIG_FILE):
+        return fallback
+    cfg = configparser.ConfigParser(interpolation=None, inline_comment_prefixes=('#', ';'))
+    cfg.read(CONFIG_FILE)
+    return cfg.get(section, key, fallback=fallback).strip()
+
 def cmd_deploy(args):
     """Pushes the local index.js and wrangler.jsonc to Cloudflare."""
     print(" Preparing to deploy HealthcheckWatch to Cloudflare...")
-    
-    # Optional: Check if we are in the right directory by looking for wrangler.jsonc
-    if not os.path.exists("wrangler.jsonc"):
+
+    wrangler_path = os.path.join(BASE_DIR, "wrangler.jsonc")
+    if not os.path.exists(wrangler_path):
         print("Error: wrangler.jsonc not found. Are you in the project root?")
         sys.exit(1)
 
-    cmd = ["npx", "wrangler", "deploy"]
-    
+    # Provide the account token for auth.
+    _, env = get_cf_settings()
+
+    # `wrangler deploy` reads the D1 binding's database_id straight from
+    # wrangler.jsonc, so the real UUID must be present at deploy time. To let a
+    # shared/public wrangler.jsonc keep its placeholder, temporarily inject the id
+    # from config.ini for the duration of the deploy, then ALWAYS restore the file.
+    real_id = get_config_value('Cloudflare', 'database_id')
+    placeholder = "xxxx-xxxx-xxxx-xxxx"
+
+    with open(wrangler_path, 'r') as f:
+        original_text = f.read()
+
+    injected = False
+    if real_id and placeholder in original_text:
+        with open(wrangler_path, 'w') as f:
+            f.write(original_text.replace(placeholder, real_id))
+        injected = True
+        print(" Temporarily injected real database_id into wrangler.jsonc for this deploy.")
+
     try:
-        # We don't use capture_output=True here because we want the user 
+        # We don't use capture_output=True here because we want the user
         # to see the real-time progress bar and the final URL from Wrangler.
-        subprocess.run(cmd, check=True)
+        subprocess.run(["npx", "wrangler", "deploy"], check=True, env=env)
         print("\n Deployment successful!")
     except subprocess.CalledProcessError:
         print("\n Deployment failed. Check the error messages above.")
         sys.exit(1)
+    finally:
+        # Restore the original (placeholder) file even on failure or Ctrl-C, so the
+        # real id is never left in a file the auto-commit cron could publish.
+        if injected:
+            with open(wrangler_path, 'w') as f:
+                f.write(original_text)
+            print(" Restored placeholder in wrangler.jsonc.")
+
+def get_cf_settings():
+    """Loads Cloudflare account credentials for wrangler from config.ini.
+
+    Returns (db_target, env):
+      db_target - the real D1 database UUID if configured, else the database name.
+      env       - a subprocess environment with CLOUDFLARE_API_TOKEN populated from
+                  cf_token_file (an already-exported env var always takes precedence).
+    Both are optional; without them wrangler falls back to its own ambient auth,
+    preserving the previous behavior.
+    """
+    db_target = DB_NAME
+    env = os.environ.copy()
+    if not os.path.exists(CONFIG_FILE):
+        return db_target, env
+
+    cfg = configparser.ConfigParser(interpolation=None, inline_comment_prefixes=('#', ';'))
+    cfg.read(CONFIG_FILE)
+
+    db_id = cfg.get('Cloudflare', 'database_id', fallback='').strip()
+    if db_id:
+        db_target = db_id
+
+    if not env.get('CLOUDFLARE_API_TOKEN'):
+        token_file = cfg.get('Cloudflare', 'cf_token_file', fallback='').strip()
+        if token_file:
+            token_path = os.path.expanduser(token_file)
+            try:
+                with open(token_path) as f:
+                    token = f.read().strip()
+                if token:
+                    env['CLOUDFLARE_API_TOKEN'] = token
+            except OSError as e:
+                sys.stderr.write(f"Warning: could not read cf_token_file '{token_path}': {e}\n")
+
+    return db_target, env
 
 def run_wrangler(sql):
     """Executes a D1 SQL command via Wrangler and returns the JSON results."""
-    cmd = ["npx", "wrangler", "d1", "execute", DB_NAME, "--remote", "--json", "--command", sql]
+    db_target, env = get_cf_settings()
+    cmd = ["npx", "wrangler", "d1", "execute", db_target, "--remote", "--json", "--command", sql]
     try:
         # Run wrangler, hiding stderr unless it completely fails
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True, env=env)
         data = json.loads(result.stdout)
         return data[0].get('results', [])
     except subprocess.CalledProcessError as e:
-        sys.stderr.write(f"Wrangler Error:\n{e.stderr}\n")
+        # Wrangler writes its human-readable errors to stdout, not stderr, so a
+        # bare e.stderr is often empty. Surface whichever stream has content.
+        detail = (e.stderr or "").strip() or (e.stdout or "").strip() or f"wrangler exited with status {e.returncode}"
+        sys.stderr.write(f"Wrangler Error:\n{detail}\n")
         sys.exit(1)
     except Exception as e:
         sys.stderr.write(f"Execution Error: {e}\n")

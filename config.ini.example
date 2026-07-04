@@ -2,6 +2,15 @@
 api_url = https://healthcheckwatch.your-subdomain.workers.dev
 api_token = YOUR_SECRET_TOKEN
 
+# --- Optional: account credentials for manage.py (wrangler) only ---
+# Real D1 database UUID (from `wrangler d1 list`). Set this so wrangler.jsonc can
+# keep its "xxxx-xxxx-xxxx-xxxx" placeholder and never leak the id to a public repo.
+# database_id = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+# Path to a file holding your Cloudflare ACCOUNT API token (for wrangler auth).
+# If CLOUDFLARE_API_TOKEN is already exported in your shell, that wins over this.
+# cf_token_file = /path/to/cloudflare.apitoken
+
 [Settings]
 # Set to 'yes' to NOT send emails (e.g., during planned downtime) but continue logging
 squelch = no

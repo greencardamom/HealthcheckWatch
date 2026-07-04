@@ -167,6 +167,7 @@ We need to create the D1 SQL database in the cloud and tell your local project h
     *(Note: if you use a different database name then `healthcheckwatch-db` also update `wrangler.jsonc`)*
 * **Step B3B**: Copy the Binding Configuration
   * After B3A finishes, the terminal will output a block of text containing your `database_id`. Copy paste the `database_id` into the file `wrangler.jsonc` located in your project folder.
+  * *Alternative (to keep the id out of a shared or public `wrangler.jsonc`): leave the `xxxx-xxxx-xxxx-xxxx` placeholder in `wrangler.jsonc` and instead set `database_id` in `config.ini` (see C1B).*
 
 ### Phase 4: Database Schema Creation
 
@@ -204,6 +205,8 @@ The `config.ini` is the main configuration file for HealthcheckWatch. It contain
 * **Step C1B**: Open the file and fill in details
   * **api_url**: The full URL provided when you run `npx wrangler deploy` (see **B5C**). Do not include a trailing slash.
   * **api_token**: The exact secret string you generated and uploaded to CloudFlare via `npx wrangler secret put API_TOKEN` (see **B5B**).
+  * **database_id** (optional): Your real D1 UUID (from `npx wrangler d1 list`). Set this to let `manage.py` run D1 commands while `wrangler.jsonc` keeps a placeholder (see **B3B**). If you filled the id into `wrangler.jsonc` instead, omit this.
+  * **cf_token_file** (optional): Path to a file containing your CloudFlare *account* API token, used by `manage.py` (wrangler) for D1 commands and deploys. If you authenticated with `npx wrangler login` (**B2A**) or already export `CLOUDFLARE_API_TOKEN`, omit this. Note this is the account token, **not** the same as `api_token` above.
   * **squelch**: Set to `no` by default. If you change this to `yes`, the script will still fetch and clear alerts from CloudFlare, and write them to your `logs/email_log`, but it will not send emails. This is useful for planned downtime.
   * **timezone**: Set to `local` or `UTC`.
   * **SMTP host**: Your email provider's SMTP server (e.g., `smtp.gmail.com`, `mail.yourdomain.net`).
@@ -218,18 +221,18 @@ The `config.ini` is the main configuration file for HealthcheckWatch. It contain
 
 * **Step C2A**: Simple test
   * Run a test
-    * `curl -X POST "https://healthcheckwatch.yourhostname.workers.dev/ping/test-monitor" -H "Authorization: Bearer API_TOKEN"`
+    * `curl -X POST -w "\nHTTP %{http_code}\n" "https://healthcheckwatch.yourhostname.workers.dev/ping/test-monitor" -H "Authorization: Bearer API_TOKEN"`
     * *`yourhostname` was printed during B5C. `API_TOKEN` was created in B5B.*
-  * **If it returns `[DONE] Heartbeat logged for monitor: test-monitor`, you have successfully built a serverless CloudFlare system.**
+  * **If it returns `HTTP 200` (the response body is intentionally empty), you have successfully built a serverless CloudFlare system.** A `401` means the token is wrong; a `404` means the URL is wrong.
 * **Step C2B**: Fake an alert
   * Inject a fake alert into the CloudFlare database
-    * `./manage-py test-alert`
+    * `./manage.py test-alert`
   * Wait the required time then pull the alert to send an email:
     * `./emailcheck.py`
   * You should receive an email. If not, double check your `config.ini` SMTP settings are working.
   * Normally CloudFlare checks for alerts at the top of the hour. This can be adjusted in `wrangler.jsonc`
     * `"crons": ["0 * * * *"]` Change the `0` to `10` to check at 10 minutes after the hour.
-    * Changes to `wrangerl.jsonc` require `./manage.py deploy`
+    * Changes to `wrangler.jsonc` require `./manage.py deploy`
 
 ### Phase 3: Automation
 To make the system fully automated, you need to tell your server to run `emailcheck.py` on a regular schedule to fetch pending alerts from CloudFlare.
@@ -243,7 +246,7 @@ To make the system fully automated, you need to tell your server to run `emailch
     2 * * * * /path/to/your/HealthcheckWatch/emailcheck.py
     ```
   * *Note: During an outage you will receive **one** alert it won't keep sending emails.*
-  * *Note: Match how often you poll for email with how frequently cron runs on CloudFlare. See `wranger.jsonc` for CloudFlare cron settings and remember any change to `wranger.jsonc` also requires `./manage deploy`*
+  * *Note: Match how often you poll for email with how frequently cron runs on CloudFlare. See `wrangler.jsonc` for CloudFlare cron settings and remember any change to `wrangler.jsonc` also requires `./manage.py deploy`*
   * *Note: `emailcheck.py` should run about 1 minute after cron on CloudFlare to avoid a possible race condition. By default cron on CloudFlare runs at minute one once an hour, so you want to run `emailcheck.py` at minute 2 once an hour.*
 
 ### Phase 4: manage.py
@@ -254,7 +257,7 @@ Use the included `manage.py` to manage your monitors.
 * `./manage.py status`: Check if the CloudFlare outbox is healthy or backed up.
 * `./manage.py remove <id>`: Retire a monitor.
 * `./manage.py pause <id> <hours>`: Add or subtract (e.g. 1 or -1) hours until timeout for an active monitor.
-* `./manage.py deploy`: Upload to CloudFlare changes made to `src/index.js` and `wranger.jsonc`
+* `./manage.py deploy`: Upload to CloudFlare changes made to `src/index.js` and `wrangler.jsonc`
 * `./manage.py test-alert`: Create a test alert.
 
 ## License
