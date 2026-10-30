@@ -130,12 +130,17 @@ def send_email(config, alert, is_insecure):
     host = config.get('SMTP', 'host')
     port = config.getint('SMTP', 'port')
     user = config.get('SMTP', 'user')
-    password = config.get('SMTP', 'pass')
-    use_ssl = config.getboolean('SMTP', 'use_ssl')
+    password = config.get('SMTP', 'pass', fallback='')
+    use_ssl = config.getboolean('SMTP', 'use_ssl', fallback=False)
+    use_auth = config.getboolean('SMTP', 'auth', fallback=True)
 
     context = ssl.create_default_context()
     try:
-        if use_ssl:
+        if not use_auth:
+            # Local relay (e.g. postfix on localhost:25): no TLS, no login
+            with smtplib.SMTP(host, port) as s:
+                s.send_message(msg)
+        elif use_ssl:
             with smtplib.SMTP_SSL(host, port, context=context) as s:
                 s.login(user, password)
                 s.send_message(msg)
@@ -155,7 +160,12 @@ def main():
     is_insecure = check_security()
     
     api_url = config.get('Cloudflare', 'api_url').rstrip('/')
-    api_token = config.get('Cloudflare', 'api_token')
+    token_file = config.get('Cloudflare', 'api_token_file', fallback='').strip()
+    if token_file:
+        with open(os.path.expanduser(token_file)) as f:
+            api_token = f.read().strip()
+    else:
+        api_token = config.get('Cloudflare', 'api_token')
     squelched = config.getboolean('Settings', 'squelch', fallback=False)
 
     headers = {

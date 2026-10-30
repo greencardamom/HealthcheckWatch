@@ -1,6 +1,8 @@
 [Cloudflare]
 api_url = https://healthcheckwatch.your-subdomain.workers.dev
 api_token = YOUR_SECRET_TOKEN
+# Or keep the token out of this file: path to a file holding it (overrides api_token)
+# api_token_file = /path/to/healthcheckwatch.apitoken
 
 # --- Optional: account credentials for manage.py (wrangler) only ---
 # Real D1 database UUID (from `wrangler d1 list`). Set this so wrangler.jsonc can
@@ -25,3 +27,6 @@ user = user@domain.net
 pass = your_password
 # Set to 'yes' for port 465 (Implicit SSL), 'no' for port 587 (STARTTLS)
 use_ssl = yes
+# Set to 'no' to send through a local relay (e.g. postfix: host = localhost,
+# port = 25) with no TLS or login; pass and use_ssl are then ignored
+auth = yes
